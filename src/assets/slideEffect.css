@@ -1,0 +1,64 @@
+/* 전환효과 (Slide) */
+.next-leave-to {
+  animation: leaveToLeft 500ms both cubic-bezier(0.165, 0.84, 0.44, 1);
+  z-index: 0;
+}
+
+.next-enter-to {
+  animation: enterFromRight 500ms both cubic-bezier(0.165, 0.84, 0.44, 1);
+  z-index: 1;
+}
+
+.prev-leave-to {
+  animation: leaveToRight 500ms both cubic-bezier(0.165, 0.84, 0.44, 1);
+  z-index: 0;
+}
+
+.prev-enter-to {
+  animation: enterFromLeft 500ms both cubic-bezier(0.165, 0.84, 0.44, 1);
+  z-index: 1;
+}
+
+@keyframes leaveToLeft {
+  from {
+    transform: translateX(0%);
+  }
+
+  to {
+    transform: translateX(-100%);
+    filter: brightness(0.5);
+  }
+}
+
+@keyframes enterFromLeft {
+  from {
+    transform: translateX(-200%);
+    filter: brightness(0.5);
+  }
+
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes leaveToRight {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(100%);
+    filter: brightness(0.5);
+  }
+}
+
+@keyframes enterFromRight {
+  from {
+    transform: translateX(0%);
+    filter: brightness(0.5);
+  }
+
+  to {
+    transform: translateX(-100%);
+  }
+}
