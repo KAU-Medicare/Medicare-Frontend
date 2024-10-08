@@ -2,7 +2,7 @@ name: Vue.js Deployment
 
 on:
   push:
-    branches: [ “develop” ]
+    branches: [ "develop" ]
 
 permissions:
   contents: read
