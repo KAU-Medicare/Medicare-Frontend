@@ -1,0 +1,56 @@
+[
+  {
+    "id": 0,
+    "name": "타이레놀정 500mg",
+    "from": "한국존슨앤드존슨(유)",
+    "img": "/assets/1.jpg" 
+  },
+  {
+    "id": 1,
+    "name": "타이레놀산 500mg",
+    "from": "한국존슨앤드존슨(유)",
+    "img": "/assets/2.jpg"
+  },
+  {
+    "id": 2,
+    "name": "타이레놀 콜드",
+    "from": "한국제약",
+    "img": "/assets/1.jpg"
+  },
+  {
+    "id": 3,
+    "name": "판콜에이정",
+    "from": "동아제약",
+    "img": "/assets/2.jpg" 
+  },
+  {
+    "id": 4,
+    "name": "비타민D 1000IU",
+    "from": "대원제약",
+    "img": "/assets/1.jpg"
+  },
+  {
+    "id": 5,
+    "name": "아세로라 비타민C",
+    "from": "종근당",
+    "img": "/assets/2.jpg"
+  },
+  {
+    "id": 6,
+    "name": "마그네슘 비타민B6",
+    "from": "동아제약",
+    "img": "/assets/1.jpg"
+  },
+  {
+    "id": 7,
+    "name": "비타민E 400IU",
+    "from": "한미약품",
+    "img": "/assets/2.jpg"
+  },
+  {
+    "id": 8,
+    "name": "비타민B 복합체",
+    "from": "일동제약",
+    "img": "/assets/1.jpg"
+  }
+]
