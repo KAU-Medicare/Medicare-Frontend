@@ -73,5 +73,3 @@ export default {
   font-size: 18px; /* 문구의 글씨 크기 */
 }
 </style>
-
-입니다!

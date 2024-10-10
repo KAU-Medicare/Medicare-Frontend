@@ -52,5 +52,35 @@
     "name": "비타민B 복합체",
     "from": "일동제약",
     "img": "/assets/1.jpg"
+  },
+  {
+    "id": 9,
+    "name": "타이레놀 콜드",
+    "from": "한국제약",
+    "img": "/assets/1.jpg"
+  },
+  {
+    "id": 10,
+    "name": "타이레놀 콜드",
+    "from": "한국제약",
+    "img": "/assets/1.jpg"
+  },
+  {
+    "id": 11,
+    "name": "타이레놀 콜드",
+    "from": "한국제약",
+    "img": "/assets/1.jpg"
+  },
+  {
+    "id": 12,
+    "name": "타이레놀 콜드",
+    "from": "한국제약",
+    "img": "/assets/1.jpg"
+  },
+  {
+    "id": 13,
+    "name": "타이레놀 콜드",
+    "from": "한국제약",
+    "img": "/assets/1.jpg"
   }
 ]
