@@ -66,23 +66,32 @@ export default {
 .container {
   display: flex;
   flex-direction: column;
-  align-items: center; 
+  align-items: center;
   justify-content: flex-start;
-  height: calc(100vh - 60px); /* 실제 내비게이션 바 높이에 맞춰 조정 */
-  width: 100vw; 
-  padding: 20px; 
-  padding-bottom: 100px; /* 내비게이션 바의 높이에 맞춰 패딩 추가 */
-  overflow-y: auto; /* 스크롤 가능하도록 설정 */
-  border-radius: 10px;
+  height: 100vh;
+  width: 100vw;
+  overflow-y: auto; 
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  background: linear-gradient(135deg, #f0f8ff 30%, #e6e6fa 100%); 
+  background: white;
 }
+
+.container::-webkit-scrollbar {
+  display: none; /* 크롬, 사파리, 엣지 등 Webkit 기반 브라우저에서 스크롤바 숨기기 */
+}
+
 
 .search-bar {
   width: 100%;
   display: flex; 
   justify-content: center;
-  margin-bottom: 20px; 
+  padding-bottom: 2.5vh;
+  padding-top: 2.5vh;
+  height: 7vh;
+  position: fixed;
+  z-index: 1;
+  background: white;
+  border-bottom: 2px solid #ccc;
+  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1);
 }
 
 .search-bar input {
@@ -97,7 +106,7 @@ export default {
 }
 
 .search-bar input:focus {
-  border-color: #007bff; 
+  border-color: #FFBA94; 
 }
 
 .search-button {
@@ -105,20 +114,24 @@ export default {
   margin-left: 10px; 
   border: none;
   border-radius: 8px;
-  background-color: #007bff; 
+  background-color: #FFBA94; 
   color: white;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 .search-button:hover {
-  background-color: #0056b3; 
+  background-color: #FF8947; 
 }
 
 .medicine-list {
   width: 100%;
   display: flex; 
-  justify-content: center; 
+  justify-content: center;
+  padding-top: 14.5vh; /* 서치바 크기 */
+  padding-bottom: 13vh;
+  
+
 }
 
 .medicine-grid {
@@ -131,16 +144,17 @@ export default {
 
 .medicine-card {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
+  max-width: 400px; 
   padding: 15px; 
   background-color: #fff; 
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  width: 90%; 
-  max-width: 300px; 
-  margin: 5px 0; 
+  width: 100%; 
+  margin: 5px;
+  border: 1px solid #ccc;
 }
 
 .medicine-card:hover {
@@ -152,15 +166,19 @@ export default {
   width: 100px;
   height: 100px;
   object-fit: cover;
-  margin-bottom: 10px;
-  border-radius: 50%; 
+  border-radius: 10%;
+  flex: 1;
 }
 
 .medicine-info {
   display: flex;
   flex-direction: column; 
-  align-items: center; 
-  text-align: center; 
+  align-items: left;
+  text-align: left; 
+  border-left: 1px solid #ccc;
+  margin-left: 10px;
+  padding-left: 10px;
+  flex: 3;
 }
 
 .medicine-info h3 {
@@ -171,6 +189,8 @@ export default {
 
 .medicine-info p {
   font-size: 14px;
+  align-items: right;
+  text-align: right; 
   color: #666; 
 }
 
