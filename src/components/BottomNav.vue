@@ -1,6 +1,6 @@
 <template>
   <div class="bottom-nav">
-    <router-link to="/" class="nav-item">
+    <router-link to="/home" class="nav-item">
       <img class="nav-img" :src="currentHomeImg" alt="homeBtn" />
       <p class>홈</p>
     </router-link>
@@ -43,7 +43,7 @@ export default {
   computed: {
     // 현재 라우트에 따라 이미지를 동적으로 변경하는 로직
     currentHomeImg() {
-      return this.$route.path === "/"
+      return this.$route.path === "/home"
         ? this.homeBtnActiveImg
         : this.homeBtnImg;
     },

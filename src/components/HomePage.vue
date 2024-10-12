@@ -146,13 +146,14 @@ export default {
   display: flex;
   flex-direction: row;
   align-items: center;
-  max-width: 400px; 
+  /* max-width: 400px;  */
   padding: 15px; 
   background-color: #fff; 
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  width: 100%; 
+  width: 80%; 
+  height: 10vh;
   margin: 5px;
   border: 1px solid #ccc;
 }
@@ -163,35 +164,39 @@ export default {
 }
 
 .medicine-image {
-  width: 100px;
-  height: 100px;
+  height: inherit;
+  aspect-ratio: 1;
   object-fit: cover;
   border-radius: 10%;
-  flex: 1;
 }
 
 .medicine-info {
   display: flex;
   flex-direction: column; 
+  height: 100%;
   align-items: left;
   text-align: left; 
   border-left: 1px solid #ccc;
   margin-left: 10px;
   padding-left: 10px;
-  flex: 3;
+  flex: 1;
 }
 
 .medicine-info h3 {
   font-size: 18px;
-  margin-bottom: 5px;
+  margin-top: 0;
   color: #333; 
+  flex: 1;
 }
 
 .medicine-info p {
   font-size: 14px;
-  align-items: right;
-  text-align: right; 
+  display: flex;
+  justify-content: flex-end; /* 수평 방향으로 오른쪽 정렬 */
+  align-items: flex-end; /* 수직 방향으로 아래쪽 정렬 */
+  margin-bottom: 0;
   color: #666; 
+  flex: 1;
 }
 
 .no-results {
