@@ -15,7 +15,7 @@ export default {
   methods: {
     async initiateKakaoLogin() {
       try {
-        const response = await axios.get("/api/login/kakao-url");
+        const response = await axios.get("https://kau-medicare.shop/api/login/kakao-url");
         const loginUrl = response.data.loginUrl;
         window.location.href = loginUrl;
       } catch (error) {
