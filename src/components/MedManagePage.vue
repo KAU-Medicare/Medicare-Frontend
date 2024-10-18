@@ -1,7 +1,7 @@
 <template>
   <div class="medManage">
     <h1>medManage Page</h1>
-    <p>medManage .테스트 화면입니다</p>
+    <p>medManage 테스트 화면입니다</p>
     <router-link to="/medInfo">
       <p>약정보 페이지 이동</p>
     </router-link>
