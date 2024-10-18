@@ -1,7 +1,13 @@
 <template>
   <div class="medManage">
     <h1>medManage Page</h1>
-    <p>medManage .피쳐피쳐테스트 한번 더 커밋</p>
+    <p>medManage 테스트 화면입니다</p>
+    <router-link to="/medInfo">
+      <p>약정보 페이지 이동</p>
+    </router-link>
+    <router-link to="/allergyRecord">
+      <p>알러지 등록 페이지 이동</p>
+    </router-link>
   </div>
 </template>
 
