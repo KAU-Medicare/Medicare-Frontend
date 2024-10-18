@@ -7,7 +7,7 @@ import NutriSuppPage from '../components/NutriSuppPage.vue';
 import AllergyInfPage from '../components/AllergyInfPage.vue';
 import ProfPage from '../components/ProfPage.vue';
 import MedInfoPage from '../components/MedInfoPage.vue';
-import AllergyRecordPage from '../components/allergyRecordPage.vue';
+import AllergyRecordPage from '../components/AllergyRecordPage.vue';
 
 const routes = [
   { path: '/', component: LoginPage, meta: { page: 0, state: "" } },
