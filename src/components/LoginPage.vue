@@ -62,7 +62,7 @@ export default {
   aspect-ratio: 1;
 }
 
-h1 {
+.login h1 {
   color: #ff8947;
 }
 
