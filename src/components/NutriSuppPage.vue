@@ -1,25 +1,28 @@
 <template>
-  <div class="nutriSupp">
-    <h1>NutriSupp Page</h1>
-    <p>NutriSupp information will be displayed here.</p>
+  <div>
+    <button @click="startCamera">카메라 사용</button>
+    <video ref="video" width="640" height="480" autoplay></video>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'NutriSuppPage'
+  methods: {
+    async startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        this.$refs.video.srcObject = stream;
+      } catch (error) {
+        console.error('카메라에 접근할 수 없습니다:', error);
+      }
+    },
+  },
 };
+
 </script>
 
-<style>
-.nutriSupp {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  width: 100vw;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  background-color: yellow;
+<style scoped>
+video {
+  border: 1px solid black;
 }
 </style>
