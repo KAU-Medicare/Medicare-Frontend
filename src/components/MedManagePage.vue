@@ -1,7 +1,7 @@
 <template>
   <div class="medManage">
     <h1>medManage Page</h1>
-    <p>medManage iㅇㅇll be isplayed here.</p>
+    <p>medManage .테스트 화면입니다</p>
   </div>
 </template>
 
