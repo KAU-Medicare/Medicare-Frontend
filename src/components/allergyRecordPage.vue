@@ -7,7 +7,7 @@
 
 <script>
 export default {
-  name: 'AllergyRecordPage'
+  name: "AllergyRecordPage",
 };
 </script>
 
