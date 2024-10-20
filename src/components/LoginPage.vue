@@ -1,115 +1,61 @@
 <template>
-  <div class="todo-container">
-    <h1>Todo Application</h1>
-    <h2>Todo List</h2>
-    <div class="input-container">
-      <input v-model="newTodo" @keyup.enter="addTodo" placeholder="Enter new todo">
-      <button @click="addTodo">Add</button>
-    </div>
-    <button @click="fetchTodos">Refresh List</button>
-    <ul class="todo-list">
-      <li v-for="todo in todos" :key="todo.id" class="todo-item">
-        <input type="checkbox" v-model="todo.completed" @change="updateTodo(todo)">
-        <span :class="{ completed: todo.completed }">{{ todo.title }}</span>
-        <button @click="deleteTodo(todo.id)">Delete</button>
-      </li>
-    </ul>
+  <div class="login">
+    <img class="logo" src="@/assets/medicareLogo.png" alt="로고 이미지" />
+    <h1>메디케어에 오신걸 환영합니다!</h1>
+    <button class="kakao-login" @click="kakaoLogin" :disabled="isLoading">
+      <img src="@/assets/kakaoLogin.png" alt="카카오 로그인 버튼" />
+    </button>
   </div>
 </template>
 
 <script>
-import axios from 'axios'
-
 export default {
-  name: 'TodoList',
+  name: "LoginPage",
   data() {
     return {
-      todos: [],
-      newTodo: ''
-    }
-  },
-  mounted() {
-    this.fetchTodos()
+      isLoading: false,
+    };
   },
   methods: {
-    async fetchTodos() {
-      try {
-        const response = await axios.get('https://kau-medicare.shop/api/todos/')
-        this.todos = response.data
-      } catch (error) {
-        console.error('Error fetching todos:', error)
-      }
+    //카카오톡 로그인 하기
+    kakaoLogin() {
+      const redirect_uri = "http://localhost:8080/kakaojoin";
+      const clientId = "4f760704cb93b148b3f6956612585605";
+      const Auth_url = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirect_uri}`;
+      window.location.href = Auth_url;
     },
-    async addTodo() {
-      if (this.newTodo.trim()) {
-        try {
-          const response = await axios.post('https://kau-medicare.shop/api/todos/', { title: this.newTodo, completed: false })
-          this.todos.push(response.data)
-          this.newTodo = ''
-        } catch (error) {
-          console.error('Error adding todo:', error)
-        }
-      }
-    },
-    async updateTodo(todo) {
-      try {
-        await axios.put(`https://kau-medicare.shop/api/todos/${todo.id}`, todo)
-      } catch (error) {
-        console.error('Error updating todo:', error)
-      }
-    },
-    async deleteTodo(id) {
-      try {
-        await axios.delete(`https://kau-medicare.shop/api/todos/${id}`)
-        this.todos = this.todos.filter(todo => todo.id !== id)
-      } catch (error) {
-        console.error('Error deleting todo:', error)
-      }
-    }
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
-.todo-container {
-  max-width: 600px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.input-container {
-  margin-bottom: 20px;
-}
-
-input[type="text"] {
-  width: 70%;
-  padding: 10px;
-  margin-right: 10px;
-}
-
-button {
-  padding: 10px 20px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-.todo-list {
-  list-style-type: none;
-  padding: 0;
-}
-
-.todo-item {
+.login {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  justify-content: center;
   align-items: center;
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
+  text-align: center;
+  background: linear-gradient(to bottom, #ff8947, #feb47b);
 }
-
-.completed {
-  text-decoration: line-through;
-  color: #888;
+.login .logo {
+  height: 40vh;
+  width: auto;
+}
+.login h1 {
+  color: #ff8947;
+}
+.kakao-login {
+  border: none;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+  transition: opacity 0.3s;
+  background: none;
+}
+.kakao-login:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 </style>
