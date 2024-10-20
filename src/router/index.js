@@ -7,8 +7,8 @@ import NutriSuppPage from '../components/NutriSuppPage.vue';
 import AllergyInfPage from '../components/AllergyInfPage.vue';
 import ProfPage from '../components/ProfPage.vue';
 import MedInfoPage from '../components/MedInfoPage.vue';
-import AllergyRecordPage from '../components/allergyRecordPage.vue';
-
+import AllergyRecordPage from '../components/AllergyRecordPage.vue';
+import KakaoJoin from '../components/KakaoJoin.vue'
 const routes = [
   { path: '/', component: LoginPage, meta: { page: 0, state: "" } },
   { path: '/home', component: HomePage, meta: { page: 1, state: 'BotNav'  } },
@@ -18,6 +18,7 @@ const routes = [
   { path: '/prof', component: ProfPage, meta: { page: 5, state: "BotNav" } },
   { path: '/medInfo', component: MedInfoPage, meta: { page: -1, state: "" } },
   { path: '/allergyRecord', component: AllergyRecordPage, meta: { page: -1, state: "" } },
+  { path: '/kakaojoin', name: 'kakaoJoin', component: KakaoJoin, meta: { page: -1, state: "" } },
 ];
 
 const router = createRouter({
