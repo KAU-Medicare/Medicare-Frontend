@@ -1,7 +1,7 @@
 <template>
   <div class="allergyRecord">
     <h1>AllergyRecord Page</h1>
-    <p>AllergyRecord page 입니다</p>
+    <p>AllergyRecord page 입니다.</p>
   </div>
 </template>
 
