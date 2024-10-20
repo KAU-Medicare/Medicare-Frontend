@@ -5,7 +5,7 @@ module.exports = defineConfig({
   devServer: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8080', // Spring Boot 서버 주소
+        target: 'https://kau-medicare.shop', // Spring Boot 서버 주소
         changeOrigin: true,
         pathRewrite: { '^/api': '' } // 필요에 따라 경로 재작성
       }
