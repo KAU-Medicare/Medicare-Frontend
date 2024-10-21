@@ -20,21 +20,17 @@
 <script>
 import axios from 'axios'
 
+const api = axios.create({
+  baseURL: 'https://kau-medicare.shop/api',
+  withCredentials: false
+});
+
 export default {
-  name: 'TodoList',
-  data() {
-    return {
-      todos: [],
-      newTodo: ''
-    }
-  },
-  mounted() {
-    this.fetchTodos()
-  },
+  // ...
   methods: {
     async fetchTodos() {
       try {
-        const response = await axios.get('/api/todos/')
+        const response = await api.get('/todos/')
         this.todos = response.data
       } catch (error) {
         console.error('Error fetching todos:', error)
@@ -43,7 +39,7 @@ export default {
     async addTodo() {
       if (this.newTodo.trim()) {
         try {
-          const response = await axios.post('/api/todos/', { title: this.newTodo, completed: false })
+          const response = await api.post('/todos/', { title: this.newTodo, completed: false })
           this.todos.push(response.data)
           this.newTodo = ''
         } catch (error) {
@@ -53,14 +49,14 @@ export default {
     },
     async updateTodo(todo) {
       try {
-        await axios.put(`/api/todos/${todo.id}`, todo)
+        await api.put(`/todos/${todo.id}`, todo)
       } catch (error) {
         console.error('Error updating todo:', error)
       }
     },
     async deleteTodo(id) {
       try {
-        await axios.delete(`/api/todos/${id}`)
+        await api.delete(`/todos/${id}`)
         this.todos = this.todos.filter(todo => todo.id !== id)
       } catch (error) {
         console.error('Error deleting todo:', error)
