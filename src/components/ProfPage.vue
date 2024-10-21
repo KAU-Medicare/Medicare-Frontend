@@ -34,7 +34,7 @@ export default {
   methods: {
     async fetchTodos() {
       try {
-        const response = await axios.get('https://kau-medicare.shop/api/todos/')
+        const response = await axios.get('/api/todos/')
         this.todos = response.data
       } catch (error) {
         console.error('Error fetching todos:', error)
@@ -43,7 +43,7 @@ export default {
     async addTodo() {
       if (this.newTodo.trim()) {
         try {
-          const response = await axios.post('https://kau-medicare.shop/api/todos/', { title: this.newTodo, completed: false })
+          const response = await axios.post('/api/todos/', { title: this.newTodo, completed: false })
           this.todos.push(response.data)
           this.newTodo = ''
         } catch (error) {
@@ -53,14 +53,14 @@ export default {
     },
     async updateTodo(todo) {
       try {
-        await axios.put(`https://kau-medicare.shop/api/todos/${todo.id}`, todo)
+        await axios.put(`/api/todos/${todo.id}`, todo)
       } catch (error) {
         console.error('Error updating todo:', error)
       }
     },
     async deleteTodo(id) {
       try {
-        await axios.delete(`https://kau-medicare.shop/api/todos/${id}`)
+        await axios.delete(`/api/todos/${id}`)
         this.todos = this.todos.filter(todo => todo.id !== id)
       } catch (error) {
         console.error('Error deleting todo:', error)
