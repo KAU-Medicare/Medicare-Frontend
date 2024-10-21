@@ -24,7 +24,7 @@ export default {
       }
 
       axios
-        .get(`${process.env.VUE_APP_API_URL}/api/kakaologin/${code.value}`)
+        .post('/api/kakaologin', { code: code.value }, { withCredentials: false })
         .then((res) => {
           console.log('Kakao login response:', res)
           form.value = {
