@@ -1,105 +1,111 @@
 <template>
-  <div class="todo-list">
-    <h1>할 일 목록</h1>
+  <div class="todo-container">
+    <h1>Todo Application</h1>
+    <h2>Todo List</h2>
     <div class="input-container">
-      <input v-model="newTodo" @keyup.enter="addTodo" placeholder="새로운 할 일을 입력하세요">
-      <button @click="addTodo">추가</button>
+      <input v-model="newTodo" @keyup.enter="addTodo" placeholder="Enter new todo">
+      <button @click="addTodo">Add</button>
     </div>
-    <ul>
-      <li v-for="todo in todos" :key="todo.id">
-        {{ todo.title }}
-        <button @click="deleteTodo(todo.id)">삭제</button>
+    <button @click="fetchTodos">Refresh List</button>
+    <ul class="todo-list">
+      <li v-for="todo in todos" :key="todo.id" class="todo-item">
+        <input type="checkbox" v-model="todo.completed" @change="updateTodo(todo)">
+        <span :class="{ completed: todo.completed }">{{ todo.title }}</span>
+        <button @click="deleteTodo(todo.id)">Delete</button>
       </li>
     </ul>
   </div>
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
-import api from '@/services/api';
+import axios from 'axios'
+
+const api = axios.create({
+  baseURL: 'https://kau-medicare.shop/api',
+  withCredentials: true
+});
 
 export default {
-  name: 'TodoList',
-  setup() {
-    const todos = ref([]);
-    const newTodo = ref('');
-
-    const fetchTodos = async () => {
+  // ...
+  methods: {
+    async fetchTodos() {
       try {
-        const response = await api.get('/todos');
-        todos.value = response.data;
+        const response = await api.get('/todos/')
+        this.todos = response.data
       } catch (error) {
-        console.error('할 일 목록을 가져오는 데 실패했습니다:', error);
+        console.error('Error fetching todos:', error)
       }
-    };
-
-    const addTodo = async () => {
-      if (newTodo.value.trim()) {
+    },
+    async addTodo() {
+      if (this.newTodo.trim()) {
         try {
-          const response = await api.post('/todos', { title: newTodo.value, completed: false });
-          todos.value.push(response.data);
-          newTodo.value = '';
+          const response = await api.post('/todos/', { title: this.newTodo, completed: false })
+          this.todos.push(response.data)
+          this.newTodo = ''
         } catch (error) {
-          console.error('할 일을 추가하는 데 실패했습니다:', error);
+          console.error('Error adding todo:', error)
         }
       }
-    };
-
-    const deleteTodo = async (id) => {
+    },
+    async updateTodo(todo) {
       try {
-        await api.delete(`/todos/${id}`);
-        todos.value = todos.value.filter(todo => todo.id !== id);
+        await api.put(`/todos/${todo.id}`, todo)
       } catch (error) {
-        console.error('할 일을 삭제하는 데 실패했습니다:', error);
+        console.error('Error updating todo:', error)
       }
-    };
-
-    onMounted(fetchTodos);
-
-    return {
-      todos,
-      newTodo,
-      addTodo,
-      deleteTodo
-    };
+    },
+    async deleteTodo(id) {
+      try {
+        await api.delete(`/todos/${id}`)
+        this.todos = this.todos.filter(todo => todo.id !== id)
+      } catch (error) {
+        console.error('Error deleting todo:', error)
+      }
+    }
   }
-};
+}
 </script>
 
 <style scoped>
-.todo-list {
-  max-width: 500px;
+.todo-container {
+  max-width: 600px;
   margin: 0 auto;
-  padding: 20px;
+  text-align: center;
 }
 
 .input-container {
-  display: flex;
   margin-bottom: 20px;
 }
 
-input {
-  flex-grow: 1;
-  padding: 5px;
-  font-size: 16px;
+input[type="text"] {
+  width: 70%;
+  padding: 10px;
+  margin-right: 10px;
 }
 
 button {
-  padding: 5px 10px;
-  font-size: 16px;
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
   cursor: pointer;
 }
 
-ul {
+.todo-list {
   list-style-type: none;
   padding: 0;
 }
 
-li {
+.todo-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid #eee;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.completed {
+  text-decoration: line-through;
+  color: #888;
 }
 </style>
