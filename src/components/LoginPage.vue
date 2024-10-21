@@ -19,7 +19,7 @@ export default {
   methods: {
     //카카오톡 로그인 하기
     kakaoLogin() {
-      const redirect_uri = "https://kau-medicare.shop/kakaojoin";
+      const redirect_uri = "http://localhost:8080/kakaojoin";
       const clientId = "4f760704cb93b148b3f6956612585605";
       const Auth_url = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirect_uri}`;
       window.location.href = Auth_url;
