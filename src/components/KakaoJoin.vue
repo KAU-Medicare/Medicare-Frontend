@@ -26,7 +26,6 @@ export default {
       axios
         .post(
           "/api/kakaologin",
-          { code: code.value },
           {
             headers: {
               "Content-Type": "application/json",
