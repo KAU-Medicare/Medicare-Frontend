@@ -1,3 +1,13 @@
+<template>
+  <div>
+    <h1>카카오 로그인</h1>
+    <p>이메일: {{ form.email }}</p>
+    <p>닉네임: {{ form.nickname }}</p>
+    <p>토큰: {{ form.kakaotoken }}</p>
+  </div>
+</template>
+
+
 <script>
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
@@ -9,10 +19,10 @@ export default {
     const route = useRoute();
     const code = ref("");
     const form = ref({
-      email: "",
-      pwd: "",
-      nickname: "",
-      kakaotoken: "",
+      email: "x",
+      pwd: "x",
+      nickname: "x",
+      kakaotoken: "x",
     });
     const error = ref(null);
 
