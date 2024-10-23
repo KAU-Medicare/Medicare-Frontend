@@ -1,7 +1,7 @@
 <script>
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
-import axios from "axios";
+import api from '@/services/api';
 
 export default {
   name: "KakaoJoin",
@@ -16,16 +16,16 @@ export default {
     });
     const error = ref(null);
 
-    const getToken = () => {
+    const getToken = async () => {
       if (!code.value) {
         console.error("No authorization code available");
         error.value = "인증 코드가 없습니다.";
         return;
       }
 
-      axios
+      await api
         .post(
-          "/api/kakaologin",
+          "/kakaologin",
           { code: code.value },
           {
             headers: {
