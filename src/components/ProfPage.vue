@@ -36,7 +36,7 @@ export default {
     const addTodo = async () => {
       if (newTodo.value.trim()) {
         try {
-          const response = await api.get('/todos', { title: newTodo.value, completed: false });
+          const response = await api.post('/todos', { title: newTodo.value, completed: false });
           todos.value.push(response.data);
           newTodo.value = '';
         } catch (error) {
