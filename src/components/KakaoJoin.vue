@@ -1,7 +1,7 @@
 <script>
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
-import api from '@/services/api';
+import api from "@/services/api";
 
 export default {
   name: "KakaoJoin",
@@ -24,17 +24,13 @@ export default {
       }
 
       await api
-        .post(
-          "/kakaologin",
-          { code: code.value },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            withCredentials: false, // 쿠키를 포함하지 않도록 설정
-          }
-        )
+        .get(`/kakaologin/${code.value}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          withCredentials: false, // 쿠키를 포함하지 않도록 설정
+        })
         .then((res) => {
           console.log("Kakao login response:", res);
           form.value = {
