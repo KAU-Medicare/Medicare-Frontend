@@ -1,16 +1,14 @@
 <template>
   <div class="outer-container">
     <div class="inner-container">
-      <!-- 좌측 상단에 뒤로 가기 버튼 -->
       <button @click="goBack" class="back-button">
         ←
       </button>
 
       <h2>약 정보 추가</h2>
 
-      <!-- 약 이름 입력 및 이름 설정 변경 버튼 -->
       <div class="input-group">
-        <label for="med-name">테스트 이름</label>
+        <label for="med-name">약 이름</label>
         <div class="name-wrapper">
           <input type="text" v-model="medName" :readonly="!editingName" />
           <button @click="toggleEditName" class="name-change-btn">
@@ -19,7 +17,6 @@
         </div>
       </div>
 
-      <!-- 복용 날짜 선택 -->
       <div class="input-group">
         <label>복용 날짜</label>
         <div class="days">
@@ -34,7 +31,6 @@
         </div>
       </div>
 
-      <!-- 복용 알림 스위치 -->
       <div class="input-group alert-group">
         <label>복용 알림</label>
         <label class="switch">
@@ -43,7 +39,6 @@
         </label>
       </div>
 
-      <!-- 복용 시간 설정 -->
       <div class="input-group time-group">
         <label>복용 시간</label>
         <div class="time-wrapper">
@@ -63,7 +58,6 @@
         </div>
       </div>
 
-      <!-- 잔여량 표시 스위치 -->
       <div class="input-group quantity-switch-group">
         <label>잔여량 표시</label>
         <label class="switch">
@@ -72,13 +66,11 @@
         </label>
       </div>
 
-      <!-- 잔여량 개수 및 타입 -->
       <div v-if="quantityEnabled" class="input-group quantity-amount-group">
         <input type="number" v-model="quantity" min="0" class="quantity-input" /> 
         <span class="type">캡슐</span>
       </div>
 
-      <!-- 등록 버튼 -->
       <button @click="register" class="register-btn">등록하기</button>
     </div>
   </div>
@@ -88,22 +80,21 @@
 export default {
   data() {
     return {
-      medName: '', // 약 이름
-      editingName: false, // 이름 수정 모드 활성화 여부
-      days: ['일', '월', '화', '수', '목', '금', '토'], // 요일 리스트
-      selectedDays: [], // 선택된 날짜
-      alertEnabled: false, // 복용 알림 설정
-      hour: 12, // 시간
-      minute: '00', // 분
-      ampm: 'AM', // 오전/오후 선택
-      quantityEnabled: false, // 잔여량 표시 여부
-      quantity: 0, // 잔여량
-      type: '캡슐', // 약 타입 (캡슐 등)
+      medName: '', 
+      editingName: false, 
+      days: ['일', '월', '화', '수', '목', '금', '토'], 
+      selectedDays: [], 
+      alertEnabled: false, 
+      hour: 12, 
+      minute: '00', 
+      ampm: 'AM', 
+      quantityEnabled: false, 
+      quantity: 0, 
+      type: '캡슐', 
     };
   },
   methods: {
     toggleDay(day) {
-      // 복용 날짜 선택/해제 로직
       if (this.selectedDays.includes(day)) {
         this.selectedDays = this.selectedDays.filter((d) => d !== day);
       } else {
@@ -111,24 +102,20 @@ export default {
       }
     },
     toggleEditName() {
-      // 이름 수정 모드 전환
+
       this.editingName = !this.editingName;
     },
     goBack() {
-      // 뒤로 가기 버튼 클릭 시 path로 HomePage로 이동
-      this.$router.push('/home'); // name이 아닌 path로 이동
+      this.$router.push('/home'); 
     },
     register() {
-      // 등록 버튼 클릭 시 데이터 저장 (추후 필요시 구현) 후 HomePage로 이동
-      this.$router.push('/home'); // name이 아닌 path로 이동
+      this.$router.push('/home');
     },
   },
   mounted() {
-    // JSON 파일 불러오기
     fetch("/assets/test2.json")
       .then((response) => response.json())
       .then((data) => {
-        // JSON 데이터로 상태 업데이트
         this.medName = data.Name;
         this.selectedDays = data.Date;
         this.alertEnabled = data.isAlert;
@@ -148,24 +135,27 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: calc(100vh - 80px);
+  height: 100vh; 
   width: 100vw;
   background-color: white;
   box-sizing: border-box;
+  overflow: hidden; 
+  padding: 0; 
+  margin: 0;  
 }
 
 .inner-container {
   max-width: 900px;
   width: 100%;
-  padding: 40px;
+  padding: 20px; 
   background-color: white;
   border-radius: 0px;
   box-shadow: none;
   font-family: Arial, sans-serif;
   position: relative;
+  height: 100%; 
 }
 
-/* 뒤로가기 버튼 스타일 */
 .back-button {
   position: absolute;
   top: 10px;
@@ -173,45 +163,49 @@ export default {
   background: none;
   border: none;
   font-size: 2rem;
-  color: #000000;;
+  color: #000000;
   cursor: pointer;
+  padding: 0; 
+  margin: 0;  
 }
 
 h2 {
   text-align: center;
-  font-size: 2rem;
-  margin-bottom: 20px;
+  font-size: 1.8rem;
+  margin-bottom: 10px;
 }
 
 .input-group {
-  margin-bottom: 30px;
+  margin-bottom: 15px;
 }
 
 .input-group label {
   display: block;
-  margin-bottom: 10px;
-  font-size: 1.5rem;
+  margin-bottom: 5px;
+  font-size: 1.4rem;
 }
 
 input[type="text"],
 input[type="number"] {
-  padding: 10px;
-  font-size: 1.2rem;
+  padding: 8px;
+  font-size: 1.1rem;
   margin-top: 5px;
   box-sizing: border-box;
 }
 
 .quantity-input {
-  width: 80px;
-  text-align: right;
+  width: 60px;
+  text-align: center;
   margin-right: 10px;
+  height: 40px;
+  line-height: 40px;
 }
 
 .type {
   font-size: 1.2rem;
+  margin-left: 10px;
 }
 
-/* 이름 설정 변경 버튼과 이름 입력 배치 */
 .name-wrapper {
   display: flex;
   align-items: center;
@@ -230,7 +224,6 @@ input[type="number"] {
   text-decoration: underline;
 }
 
-/* 요일 선택 버튼 스타일 */
 .days {
   display: flex;
   justify-content: space-between;
@@ -239,8 +232,8 @@ input[type="number"] {
 .days button {
   flex: 1;
   margin: 5px;
-  padding: 15px;
-  font-size: 1.5rem;
+  padding: 12px;
+  font-size: 1.2rem;
   border: 1px solid #ccc;
   background-color: #fff;
   border-radius: 5px;
@@ -253,24 +246,22 @@ input[type="number"] {
   color: white;
 }
 
-/* 복용 알림 스타일 */
 .alert-group {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-/* 복용 시간 스타일 */
 .time-wrapper {
   display: flex;
   align-items: center;
 }
 
 .ampm-select {
-  padding: 15px;
-  margin-right: 20px;
-  font-size: 1.3rem;
-  width: 100px;
+  padding: 10px;
+  margin-right: 15px;
+  font-size: 1.2rem;
+  width: 80px;
 }
 
 .time-select {
@@ -279,10 +270,10 @@ input[type="number"] {
 }
 
 .time-select select {
-  padding: 15px;
-  font-size: 1.3rem;
+  padding: 10px;
+  font-size: 1.2rem;
   margin-right: 5px;
-  width: 80px;
+  width: 70px;
 }
 
 .time-select span {
@@ -290,21 +281,18 @@ input[type="number"] {
   font-size: 1.5rem;
 }
 
-/* 잔여량 표시 스위치 */
 .quantity-switch-group {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-/* 잔여량 표시 및 약 타입 */
 .quantity-amount-group {
   display: flex;
   justify-content: flex-end;
   align-items: center;
 }
 
-/* 스위치 스타일 */
 .switch {
   position: relative;
   display: inline-block;
@@ -350,18 +338,60 @@ input:checked + .slider:before {
   transform: translateX(24px);
 }
 
+
 .register-btn {
   width: 100%;
-  padding: 15px;
+  padding: 12px;
   background-color: #ffa500;
   color: white;
   border: none;
   border-radius: 5px;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   cursor: pointer;
+  margin-top: 20px; 
 }
 
 .register-btn:hover {
   background-color: #ff8c00;
 }
+
+
+@media (max-width: 768px) {
+  .outer-container {
+    padding: 10px;
+  }
+
+  .inner-container {
+    padding: 15px;
+  }
+
+  .input-group {
+    margin-bottom: 10px;
+  }
+
+  .input-group label {
+    font-size: 1.2rem;
+  }
+
+  input[type="text"],
+  input[type="number"] {
+    font-size: 1rem;
+  }
+
+  .days button {
+    padding: 8px;
+    font-size: 1rem;
+  }
+
+  .time-select select {
+    padding: 8px;
+    font-size: 1rem;
+  }
+
+  .register-btn {
+    padding: 10px;
+    font-size: 1.2rem;
+  }
+}
 </style>
+

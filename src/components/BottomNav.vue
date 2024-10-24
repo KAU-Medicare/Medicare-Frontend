@@ -7,7 +7,7 @@
     <router-link to="/medManage" class="nav-item">
       <img class="nav-img" :src="currentMedManageImg" alt="medManageBtn" />
       <p>복약관리</p>
-    </router-link>
+    </router-link>  
     <router-link to="/nutriSupp" class="nav-item">
       <img class="nav-img" :src="currentNutriSuppImg" alt="nutriSuppBtn" />
       <p>추천 영양제</p>
@@ -86,32 +86,49 @@ export default {
   box-shadow: 0 -0.5vh 1vh rgba(0, 0, 0, 0.3);
   z-index: 2;
 }
+
 .nav-item {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: center; 
   text-align: center;
   text-decoration: none;
+  margin: 0; /* 아이템 간의 여백 제거 */
   margin-top: 1vh;
   color: #a0a0a0;
   font-weight: bold;
   font-size: 10px;
-  flex: 1; /* 동일한 크기로 아이템들 분할 */
-  -webkit-tap-highlight-color: transparent; /* 크롬에서 눌렀을 때 파란색 효과 나오는거 제거 */
+  flex: 1;  /* 동일한 크기로 아이템들 분할 */
+  -webkit-tap-highlight-color: transparent; 
+  padding: 5px 0; /* 상하 여백 추가 */
 }
 
 .nav-img {
   height: 65%; /* 부모의 높이에 맞게 설정 */
   width: auto; /* 비율을 유지하기 위해 width를 auto로 설정 */
   /* object-fit: cover; 부모 영역에 맞게 이미지를 잘라냄 */
+  max-height: 40px; 
 }
 
 .nav-item.router-link-exact-active {
-  color: #ff8947; /* 선택된 탭의 색상 */
+  color: #ff8947; 
 }
 
 p {
   margin-top: 5px;
 }
 
+@media (max-width: 768px) {
+  .bottom-nav {
+    height: 10vh; /* 모바일에서 높이 증가 */
+  }
+
+  .nav-item {
+    font-size: 12px; /* 모바일에서 글꼴 크기 증가 */
+  }
+
+  .nav-img {
+    max-height: 30px; /* 모바일에서 이미지 크기 조정 */
+  }
+}
 </style>
