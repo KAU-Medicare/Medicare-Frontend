@@ -82,14 +82,5 @@
     "name": "타이레놀 콜드",
     "from": "한국제약",
     "img": "/assets/1.jpg"
-  },
-  {
-    "customName": "테스트 이름",
-    "selectDate": "0101000",
-    "isAlert": true,
-    "time": "12:30 PM",
-    "isMediRemaining": true,
-    "mediLeft": 10,
-    "mediType": "캡슐"
   }
 ]
