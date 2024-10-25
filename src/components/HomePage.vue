@@ -1,208 +1,185 @@
 <template>
   <div class="container">
-    <div class="search-bar">
-      <input
-        v-model="searchQuery"
-        placeholder="찾고 있는 약 및 영양제가 있나요?"
-        @input="filterMedicines"
-      />
-      <button class="search-button" @click="filterMedicines">검색</button>
+    <!-- Welcome Message -->
+    <div class="welcome-msg">
+      <span class="name">{{ userName }}</span
+      ><span>님, 환영합니다!</span>
     </div>
 
-    <div class="medicine-list">
-      <div v-if="searchQuery && filteredMedicines.length > 0" class="medicine-grid">
-        <div v-for="medicine in filteredMedicines" :key="medicine.id" class="medicine-card">
-          <img :src="medicine.img" alt="의약품 이미지" class="medicine-image" />
-          <div class="medicine-info">
-            <h3>{{ medicine.name }}</h3>
-            <p>{{ medicine.from }}</p>
+    <!-- Medication Section -->
+    <section class="section">
+      <h2>오늘 먹을 약</h2>
+      <div v-for="medicine in mediList" :key="medicine" class="card">
+        <div class="info">
+          <div class="name-dose">
+            <span class="name">{{ medicine.name }} </span>
+            <span class="dose"
+              >{{ medicine.singleDose }}{{ medicine.type }}</span
+            >
           </div>
+          <span class="time">{{ medicine.time }}</span>
+        </div>
+        <div class="actions">
+          <button class="check-btn">✔️</button>
         </div>
       </div>
-      <div v-else-if="searchQuery" class="no-results">
-        <p>검색 결과가 없습니다.</p>
+    </section>
+
+    <!-- Supplement Section -->
+    <section class="section">
+      <h2>오늘 먹을 영양제</h2>
+      <div v-for="supp in suppList" :key="supp" class="card">
+        <div class="info">
+          <div class="name-dose">
+            <span class="name">{{ supp.name }} </span>
+            <span class="dose"
+              >{{ supp.singleDose }}{{ supp.type }}</span
+            >
+          </div>
+          <span class="time">{{ supp.time }}</span>
+        </div>
+        <div class="actions">
+          <button class="check-btn">✔️</button>
+        </div>
       </div>
-    </div>
+    </section>
   </div>
 </template>
 
 <script>
 export default {
+  name: "HomePage",
   data() {
     return {
-      searchQuery: '',
-      medicines: [],
-      filteredMedicines: []
+      userName: "너 누구야", // 사용자의 이름이 담길 변수
+      mediList: [], // 약 json이 담길 변수
+      suppList: [], // 영양제 json이 담길 변수
     };
   },
+
   mounted() {
-    fetch('/assets/test.json')
+    this.userName = this.$route.query.userName; // 카카오조인에서 닉네임 받아오기
+
+    fetch("/assets/mediList.json") // 약 리스트 가져오기
       .then((response) => {
+        // 가져온 결과 보고
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          // 못 가져왔으면
+          throw new Error("약 리스트를 가져올 수 없습니다"); // 에러 메세지 출력 후 중단
         }
-        return response.json();
+        return response.json(); // 정상이면 응답을 json 형식으로 변환
       })
-      .then((data) => {
-        this.medicines = data;
-        this.filteredMedicines = data; 
+      .then((mediListData) => {
+        // 가져온 데이터 이름을 mediListData로 설정
+        this.mediList = mediListData; // mediList 변수에 넣어줌
+
+        return fetch("/assets/suppList.json"); // 이제 영양제 리스트 가져옴
+      })
+      .then((response) => {
+        // 가져온 결과 보고
+        if (!response.ok) {
+          // 못 가져왔으면
+          throw new Error("영양제 리스트를 가져올 수 없습니다"); // 에러 메세지 출력 후 중단
+        }
+        return response.json(); // 정상이면 응답을 json 형식으로 변환
+      })
+      .then((suppListData) => {
+        // 가져온 데이터 이름을 suppListData로 설정
+        this.suppList = suppListData; // suppList 변수에 넣어줌
       })
       .catch((error) => {
-        console.error('There was a problem with the fetch operation:', error);
+        // 오류 발생 시 위에서 throw한 에러메세지 출력
+        console.error("오류 발생 : ", error);
       });
   },
-  methods: {
-    filterMedicines() {
-      const query = this.searchQuery.toLowerCase(); 
-      this.filteredMedicines = this.medicines.filter((medicine) =>
-        medicine.name.toLowerCase().includes(query) 
-      );
-    }
-  }
 };
 </script>
 
 <style scoped>
+/* Layout */
 .container {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  height: 100vh;
-  width: 100vw;
-  overflow-y: auto; 
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  background: white;
-}
-
-.container::-webkit-scrollbar {
-  display: none; /* 크롬, 사파리, 엣지 등 Webkit 기반 브라우저에서 스크롤바 숨기기 */
-}
-
-
-.search-bar {
-  width: 100%;
-  display: flex; 
   justify-content: center;
-  padding-bottom: 2.5vh;
-  padding-top: 2.5vh;
-  height: 7vh;
-  position: fixed;
-  z-index: 1;
-  background: white;
-  border-bottom: 2px solid #ccc;
-  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1);
-}
-
-.search-bar input {
-  width: 70%; 
-  max-width: 400px; 
-  padding: 12px; 
-  font-size: 16px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: border-color 0.3s ease;
-}
-
-.search-bar input:focus {
-  border-color: #FFBA94; 
-}
-
-.search-button {
-  padding: 12px 20px; 
-  margin-left: 10px; 
-  border: none;
-  border-radius: 8px;
-  background-color: #FFBA94; 
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.search-button:hover {
-  background-color: #FF8947; 
-}
-
-.medicine-list {
-  width: 100%;
-  display: flex; 
-  justify-content: center;
-  padding-top: 14.5vh; /* 서치바 크기 */
-  padding-bottom: 13vh;
-  
-
-}
-
-.medicine-grid {
-  display: flex; 
-  flex-direction: column; 
   align-items: center;
-  gap: 10px; 
-  width: 100%; 
+  padding: 3vh 5vw 11vh 5vw;
+  max-width: 600px;
+  width: 90vw;
+  margin: auto;
+  overflow-y: auto;
+  max-height: 80%;
 }
 
-.medicine-card {
+/* Welcome Message */
+.welcome-msg {
+  height: 8vh;
   display: flex;
   flex-direction: row;
   align-items: center;
-  /* max-width: 400px;  */
-  padding: 15px; 
-  background-color: #fff; 
+  justify-content: center;
+  background-color: #ffc4a3;
   border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  width: 80%; 
-  height: 10vh;
-  margin: 5px;
-  border: 1px solid #ccc;
-}
-
-.medicine-card:hover {
-  transform: translateY(-5px); 
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); 
-}
-
-.medicine-image {
-  height: inherit;
-  aspect-ratio: 1;
-  object-fit: cover;
-  border-radius: 10%;
-}
-
-.medicine-info {
-  display: flex;
-  flex-direction: column; 
-  height: 100%;
-  align-items: left;
-  text-align: left; 
-  border-left: 1px solid #ccc;
-  margin-left: 10px;
-  padding-left: 10px;
-  flex: 1;
-}
-
-.medicine-info h3 {
-  font-size: 18px;
-  margin-top: 0;
-  color: #333; 
-  flex: 1;
-}
-
-.medicine-info p {
-  font-size: 14px;
-  display: flex;
-  justify-content: flex-end; /* 수평 방향으로 오른쪽 정렬 */
-  align-items: flex-end; /* 수직 방향으로 아래쪽 정렬 */
-  margin-bottom: 0;
-  color: #666; 
-  flex: 1;
-}
-
-.no-results {
+  width: 100%;
   text-align: center;
-  margin-top: 20px;
-  font-size: 16px;
-  color: #999; 
+  font-size: 3vh;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.welcome-msg .name {
+  font-weight: bold;
+  color: #ff8947;
+}
+
+/* Medication & Supplement Section */
+.section {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.section .name {
+  font-weight: bold;
+  font-size: 2.5vh;
+  padding-right: 10px;
+}
+
+.section .dose,
+.section .time {
+  font-size: 2vh;
+}
+
+.section .info {
+  border-right: 1px solid #ddd;
+  margin-right: 15px;
+  flex: auto;
+}
+
+h2 {
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+.card {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+  outline: 1px solid #ddd;
+}
+
+.actions {
+  display: flex;
+}
+
+.check-btn {
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
 }
 </style>

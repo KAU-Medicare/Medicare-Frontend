@@ -128,6 +128,7 @@ export default {
     fetch("/assets/test2.json")
       .then((response) => response.json())
       .then((data) => {
+        console.log(data);
         // JSON 데이터로 상태 업데이트
         this.medName = data.Name;
         this.selectedDays = data.Date;

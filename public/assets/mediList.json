@@ -1,0 +1,74 @@
+[
+    {
+        "id": 1,
+        "name": "1번 약",
+        "date": ["일", "화", "목", "토"],
+        "isAlert": true,
+        "time": "12:30 PM",
+        "singleDose": 1,
+        "isRemain": true,
+        "remainAmount": 10,
+        "type": "캡슐",
+        "isChecked": false
+    },
+    {
+        "id": 1,
+        "name": "1번 약",
+        "date": ["일", "화", "목", "토"],
+        "isAlert": true,
+        "time": "12:30 PM",
+        "singleDose": 1,
+        "isRemain": true,
+        "remainAmount": 10,
+        "type": "캡슐",
+        "isChecked": false
+    },
+    {
+        "id": 1,
+        "name": "1번 약",
+        "date": ["일", "화", "목", "토"],
+        "isAlert": true,
+        "time": "12:30 PM",
+        "singleDose": 1,
+        "isRemain": true,
+        "remainAmount": 10,
+        "type": "캡슐",
+        "isChecked": false
+    },
+    {
+        "id": 1,
+        "name": "1번 약",
+        "date": ["일", "화", "목", "토"],
+        "isAlert": true,
+        "time": "12:30 PM",
+        "singleDose": 1,
+        "isRemain": true,
+        "remainAmount": 10,
+        "type": "캡슐",
+        "isChecked": false
+    },
+    {
+        "id": 1,
+        "name": "1번 약",
+        "date": ["일", "화", "목", "토"],
+        "isAlert": true,
+        "time": "12:30 PM",
+        "singleDose": 1,
+        "isRemain": true,
+        "remainAmount": 10,
+        "type": "캡슐",
+        "isChecked": false
+    },
+    {
+        "id": 1,
+        "name": "1번 약",
+        "date": ["일", "화", "목", "토"],
+        "isAlert": true,
+        "time": "12:30 PM",
+        "singleDose": 1,
+        "isRemain": true,
+        "remainAmount": 10,
+        "type": "캡슐",
+        "isChecked": false
+    }
+]

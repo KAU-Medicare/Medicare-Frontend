@@ -1,0 +1,26 @@
+[
+    {
+        "id": 1,
+        "name": "1번 영양제",
+        "date": ["일", "화", "목", "토"],
+        "isAlert": true,
+        "time": "12:30 PM",
+        "singleDose": 1,
+        "isRemain": true,
+        "remainAmount": 10,
+        "type": "캡슐",
+        "isChecked": false
+    },
+    {
+        "id": 2,
+        "name": "2번 영양제",
+        "date": ["일", "화", "목", "토"],
+        "isAlert": true,
+        "time": "12:30 PM",
+        "singleDose": 2,
+        "isRemain": true,
+        "remainAmount": 10,
+        "type": "정",
+        "isChecked": false
+    }
+]
