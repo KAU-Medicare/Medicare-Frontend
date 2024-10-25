@@ -249,4 +249,6 @@ export default {
     padding: 8px 16px; /* 버튼 패딩 조정 */
   }
 }
+
 </style>
+
