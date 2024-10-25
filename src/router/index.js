@@ -8,16 +8,17 @@ import AllergyInfPage from '../components/AllergyInfPage.vue';
 import ProfPage from '../components/ProfPage.vue';
 import MedInfoPage from '../components/MedInfoPage.vue';
 import AllergyRecordPage from '../components/AllergyRecordPage.vue';
-
+import KakaoJoin from '../components/KakaoJoin.vue'
 const routes = [
-  { path: '/', component: LoginPage, meta: { page: 0, state: "" } },
-  { path: '/home', component: HomePage, meta: { page: 1, state: 'BotNav'  } },
-  { path: '/medManage', component: MedManagePage, meta: { page: 2, state: 'BotNav' } },
-  { path: '/nutriSupp', component: NutriSuppPage, meta: { page: 3, state: "BotNav" } },
-  { path: '/allergyInf', component: AllergyInfPage, meta: { page: 4, state: "BotNav" } },
-  { path: '/prof', component: ProfPage, meta: { page: 5, state: "BotNav" } },
-  { path: '/medInfo', component: MedInfoPage, meta: { page: -1, state: "" } },
-  { path: '/allergyRecord', component: AllergyRecordPage, meta: { page: -1, state: "" } },
+  { path: '/', name: 'LoginPage', component: LoginPage, meta: { page: 0, state: "" } },
+  { path: '/home', name: 'HomePage', component: HomePage, meta: { page: 1, state: 'BotNav'  } },
+  { path: '/medManage', name: 'MedManagePage', component: MedManagePage, meta: { page: 2, state: 'BotNav' } },
+  { path: '/nutriSupp', name: 'NutriSuppPage', component: NutriSuppPage, meta: { page: 3, state: "BotNav" } },
+  { path: '/allergyInf', name: 'AllergyInfPage', component: AllergyInfPage, meta: { page: 4, state: "BotNav" } },
+  { path: '/prof', name: 'ProfPage', component: ProfPage, meta: { page: 5, state: "BotNav" } },
+  { path: '/medInfo', name: 'MedInfoPage', component: MedInfoPage, meta: { page: -1, state: "" } },
+  { path: '/allergyRecord', name: 'AllergyRecordPage', component: AllergyRecordPage, meta: { page: -1, state: "" } },
+  { path: '/kakaojoin', name: 'kakaoJoin', component: KakaoJoin, meta: { page: -1, state: "" } },
 ];
 
 const router = createRouter({

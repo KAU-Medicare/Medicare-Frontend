@@ -1,0 +1,9 @@
+{
+    "Name": "타이레놀정 500mg",
+    "Date": ["일", "화", "목", "토"],
+    "isAlert": true,
+    "Time": "12:30 PM",
+    "isRemain": true,
+    "RemainAmount": 10,
+    "Type": "캡슐"
+}
