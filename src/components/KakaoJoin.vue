@@ -1,22 +1,20 @@
 <template>
   <div>
-    <h1>카카오 로그인</h1>
-    <p>이메일: {{ form.email }}</p>
-    <p>닉네임: {{ form.nickname }}</p>
-    <p>토큰: {{ form.kakaotoken }}</p>
+    <h1 class="center-container">로그인 중...</h1>
   </div>
 </template>
 
 
 <script>
 import { ref, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import api from "@/services/api";
 
 export default {
   name: "KakaoJoin",
   setup() {
     const route = useRoute();
+    const router = useRouter();
     const code = ref("");
     const form = ref({
       email: "x",
@@ -49,6 +47,11 @@ export default {
             nickname: res.data.nickname,
             kakaotoken: res.data.accessToken,
           };
+          router.push({ // 값을 홈으로 보내줌
+            path: "/home",
+            query: { userName: form.value.nickname },
+          });
+          console.log("Nickname sent:", form.value.nickname);
         })
         .catch((err) => {
           console.error("Error fetching token:", err);
@@ -76,3 +79,12 @@ export default {
   },
 };
 </script>
+
+<style>
+.center-container {
+  display: flex;
+  justify-content: center; /* 수평 중앙 정렬 */
+  align-items: center; /* 수직 중앙 정렬 */
+  height: 100vh; /* 화면 전체 높이 */
+}
+</style>

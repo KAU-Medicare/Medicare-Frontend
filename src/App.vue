@@ -62,6 +62,12 @@ body {
   padding: 0;
   height: 100%;
   overflow-x: hidden;
+  overflow-y: scroll; /* 스크롤 가능하게 설정 */
+  scrollbar-width: none; /* Firefox에서 스크롤 바 숨기기 */
   font-family: 'GwangYang', sans-serif;
+}
+
+::-webkit-scrollbar {
+  display: none; /* Chrome, Safari에서 스크롤 바 숨기기 */
 }
 </style>
