@@ -1,105 +1,208 @@
 <template>
-  <div class="todo-list">
-    <h1>할 일 목록</h1>
-    <div class="input-container">
-      <input v-model="newTodo" @keyup.enter="addTodo" placeholder="새로운 할 일을 입력하세요">
-      <button @click="addTodo">추가</button>
+  <div class="container">
+    <div class="search-bar">
+      <input
+        v-model="searchQuery"
+        placeholder="찾고 있는 약 및 영양제가 있나요?"
+        @input="filterMedicines"
+      />
+      <button class="search-button" @click="filterMedicines">검색</button>
     </div>
-    <ul>
-      <li v-for="todo in todos" :key="todo.id">
-        {{ todo.title }}
-        <button @click="deleteTodo(todo.id)">삭제</button>
-      </li>
-    </ul>
+
+    <div class="medicine-list">
+      <div v-if="searchQuery && filteredMedicines.length > 0" class="medicine-grid">
+        <div v-for="medicine in filteredMedicines" :key="medicine.id" class="medicine-card">
+          <img :src="medicine.img" alt="의약품 이미지" class="medicine-image" />
+          <div class="medicine-info">
+            <h3>{{ medicine.name }}</h3>
+            <p>{{ medicine.from }}</p>
+          </div>
+        </div>
+      </div>
+      <div v-else-if="searchQuery" class="no-results">
+        <p>검색 결과가 없습니다.</p>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
-import api from '@/services/api';
-
 export default {
-  name: 'TodoList',
-  setup() {
-    const todos = ref([]);
-    const newTodo = ref('');
-
-    const fetchTodos = async () => {
-      try {
-        const response = await api.get('/todos');
-        todos.value = response.data;
-      } catch (error) {
-        console.error('할 일 목록을 가져오는 데 실패했습니다:', error);
-      }
-    };
-
-    const addTodo = async () => {
-      if (newTodo.value.trim()) {
-        try {
-          const response = await api.post('/todos', { title: newTodo.value, completed: false });
-          todos.value.push(response.data);
-          newTodo.value = '';
-        } catch (error) {
-          console.error('할 일을 추가하는 데 실패했습니다:', error);
-        }
-      }
-    };
-
-    const deleteTodo = async (id) => {
-      try {
-        await api.delete(`/todos/${id}`);
-        todos.value = todos.value.filter(todo => todo.id !== id);
-      } catch (error) {
-        console.error('할 일을 삭제하는 데 실패했습니다:', error);
-      }
-    };
-
-    onMounted(fetchTodos);
-
+  data() {
     return {
-      todos,
-      newTodo,
-      addTodo,
-      deleteTodo
+      searchQuery: '',
+      medicines: [],
+      filteredMedicines: []
     };
+  },
+  mounted() {
+    fetch('/assets/test.json')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        this.medicines = data;
+        this.filteredMedicines = data; 
+      })
+      .catch((error) => {
+        console.error('There was a problem with the fetch operation:', error);
+      });
+  },
+  methods: {
+    filterMedicines() {
+      const query = this.searchQuery.toLowerCase(); 
+      this.filteredMedicines = this.medicines.filter((medicine) =>
+        medicine.name.toLowerCase().includes(query) 
+      );
+    }
   }
 };
 </script>
 
 <style scoped>
-.todo-list {
-  max-width: 500px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.input-container {
+.container {
   display: flex;
-  margin-bottom: 20px;
-}
-
-input {
-  flex-grow: 1;
-  padding: 5px;
-  font-size: 16px;
-}
-
-button {
-  padding: 5px 10px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-li {
-  display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid #eee;
+  justify-content: flex-start;
+  height: 100vh;
+  width: 100vw;
+  overflow-y: auto; 
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  background: white;
+}
+
+.container::-webkit-scrollbar {
+  display: none; /* 크롬, 사파리, 엣지 등 Webkit 기반 브라우저에서 스크롤바 숨기기 */
+}
+
+
+.search-bar {
+  width: 100%;
+  display: flex; 
+  justify-content: center;
+  padding-bottom: 2.5vh;
+  padding-top: 2.5vh;
+  height: 7vh;
+  position: fixed;
+  z-index: 1;
+  background: white;
+  border-bottom: 2px solid #ccc;
+  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1);
+}
+
+.search-bar input {
+  width: 70%; 
+  max-width: 400px; 
+  padding: 12px; 
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s ease;
+}
+
+.search-bar input:focus {
+  border-color: #FFBA94; 
+}
+
+.search-button {
+  padding: 12px 20px; 
+  margin-left: 10px; 
+  border: none;
+  border-radius: 8px;
+  background-color: #FFBA94; 
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.search-button:hover {
+  background-color: #FF8947; 
+}
+
+.medicine-list {
+  width: 100%;
+  display: flex; 
+  justify-content: center;
+  padding-top: 14.5vh; /* 서치바 크기 */
+  padding-bottom: 13vh;
+  
+
+}
+
+.medicine-grid {
+  display: flex; 
+  flex-direction: column; 
+  align-items: center;
+  gap: 10px; 
+  width: 100%; 
+}
+
+.medicine-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  /* max-width: 400px;  */
+  padding: 15px; 
+  background-color: #fff; 
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 80%; 
+  height: 10vh;
+  margin: 5px;
+  border: 1px solid #ccc;
+}
+
+.medicine-card:hover {
+  transform: translateY(-5px); 
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); 
+}
+
+.medicine-image {
+  height: inherit;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 10%;
+}
+
+.medicine-info {
+  display: flex;
+  flex-direction: column; 
+  height: 100%;
+  align-items: left;
+  text-align: left; 
+  border-left: 1px solid #ccc;
+  margin-left: 10px;
+  padding-left: 10px;
+  flex: 1;
+}
+
+.medicine-info h3 {
+  font-size: 18px;
+  margin-top: 0;
+  color: #333; 
+  flex: 1;
+}
+
+.medicine-info p {
+  font-size: 14px;
+  display: flex;
+  justify-content: flex-end; /* 수평 방향으로 오른쪽 정렬 */
+  align-items: flex-end; /* 수직 방향으로 아래쪽 정렬 */
+  margin-bottom: 0;
+  color: #666; 
+  flex: 1;
+}
+
+.no-results {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 16px;
+  color: #999; 
 }
 </style>

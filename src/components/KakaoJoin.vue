@@ -1,39 +1,44 @@
+<template>
+  <div>
+    <h1 class="center-container">로그인 중...</h1>
+  </div>
+</template>
+
+
 <script>
 import { ref, onMounted } from "vue";
-import { useRoute } from "vue-router";
-import axios from "axios";
+import { useRoute, useRouter } from "vue-router";
+import api from "@/services/api";
 
 export default {
   name: "KakaoJoin",
   setup() {
     const route = useRoute();
+    const router = useRouter();
     const code = ref("");
     const form = ref({
-      email: "",
-      pwd: "",
-      nickname: "",
-      kakaotoken: "",
+      email: "x",
+      pwd: "x",
+      nickname: "x",
+      kakaotoken: "x",
     });
     const error = ref(null);
 
-    const getToken = () => {
+    const getToken = async () => {
       if (!code.value) {
         console.error("No authorization code available");
         error.value = "인증 코드가 없습니다.";
         return;
       }
 
-      axios
-        .post(
-          "/api/kakaologin",
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            withCredentials: false, // 쿠키를 포함하지 않도록 설정
-          }
-        )
+      await api
+        .get(`/kakaologin/${code.value}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          withCredentials: false, // 쿠키를 포함하지 않도록 설정
+        })
         .then((res) => {
           console.log("Kakao login response:", res);
           form.value = {
@@ -42,6 +47,11 @@ export default {
             nickname: res.data.nickname,
             kakaotoken: res.data.accessToken,
           };
+          router.push({ // 값을 홈으로 보내줌
+            path: "/home",
+            query: { userName: form.value.nickname },
+          });
+          console.log("Nickname sent:", form.value.nickname);
         })
         .catch((err) => {
           console.error("Error fetching token:", err);
@@ -69,3 +79,12 @@ export default {
   },
 };
 </script>
+
+<style>
+.center-container {
+  display: flex;
+  justify-content: center; /* 수평 중앙 정렬 */
+  align-items: center; /* 수직 중앙 정렬 */
+  height: 100vh; /* 화면 전체 높이 */
+}
+</style>
