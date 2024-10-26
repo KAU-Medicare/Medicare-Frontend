@@ -100,12 +100,14 @@ export default {
   font-size: 10px;
   flex: 1;  /* 동일한 크기로 아이템들 분할 */
   -webkit-tap-highlight-color: transparent; 
+  padding: 5px 0; /* 상하 여백 추가 */
 }
 
 .nav-img {
-  height: 65%; /* 부모의 높이에 맞게 설정 */ 
+  height: 65%; /* 부모의 높이에 맞게 설정 */
   width: auto; /* 비율을 유지하기 위해 width를 auto로 설정 */
   /* object-fit: cover; 부모 영역에 맞게 이미지를 잘라냄 */
+  max-height: 40px; 
 }
 
 .nav-item.router-link-exact-active {
@@ -114,5 +116,19 @@ export default {
 
 p {
   margin-top: 5px;
+}
+
+@media (max-width: 768px) {
+  .bottom-nav {
+    height: 10vh; 
+  }
+
+  .nav-item {
+    font-size: 12px; 
+  }
+
+  .nav-img {
+    max-height: 30px; 
+  }
 }
 </style>
