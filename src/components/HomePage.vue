@@ -9,44 +9,30 @@
     <!-- Medication Section -->
     <section class="section">
       <h2>오늘 먹을 약</h2>
-      <div v-for="medicine in mediList" :key="medicine" class="card">
-        <div class="info">
-          <div class="name-dose">
-            <span class="name">{{ medicine.name }} </span>
-            <span class="dose"
-              >{{ medicine.singleDose }}{{ medicine.type }}</span
-            >
-          </div>
-          <span class="time">{{ medicine.time }}</span>
-        </div>
-        <div class="actions">
-          <button class="check-btn">✔️</button>
-        </div>
-      </div>
+      <MedicineCard
+        v-for="(item, index) in mediList"
+        :key="index"
+        :item="item"
+        @check="handleCheck"
+      />
     </section>
 
     <!-- Supplement Section -->
     <section class="section">
       <h2>오늘 먹을 영양제</h2>
-      <div v-for="supp in suppList" :key="supp" class="card">
-        <div class="info">
-          <div class="name-dose">
-            <span class="name">{{ supp.name }} </span>
-            <span class="dose"
-              >{{ supp.singleDose }}{{ supp.type }}</span
-            >
-          </div>
-          <span class="time">{{ supp.time }}</span>
-        </div>
-        <div class="actions">
-          <button class="check-btn">✔️</button>
-        </div>
-      </div>
+      <MedicineCard
+      v-for="(item, index) in suppList"
+      :key="index"
+      :item="item"
+      @check="handleCheck"
+    />
     </section>
   </div>
 </template>
 
 <script>
+import MedicineCard from "@/components/cards/MedicineCard.vue";
+
 export default {
   name: "HomePage",
   data() {
@@ -55,6 +41,16 @@ export default {
       mediList: [], // 약 json이 담길 변수
       suppList: [], // 영양제 json이 담길 변수
     };
+  },
+
+  components: {
+    MedicineCard,
+  },
+
+  methods: {
+    handleCheck(item) {
+      console.log(`${item.name} checked!`);
+    },
   },
 
   mounted() {
@@ -136,50 +132,5 @@ export default {
   margin-bottom: 20px;
 }
 
-.section .name {
-  font-weight: bold;
-  font-size: 2.5vh;
-  padding-right: 10px;
-}
 
-.section .dose,
-.section .time {
-  font-size: 2vh;
-}
-
-.section .info {
-  border-right: 1px solid #ddd;
-  margin-right: 15px;
-  flex: auto;
-}
-
-h2 {
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 5px;
-  margin-bottom: 10px;
-}
-
-.card {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #fff;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 10px;
-  outline: 1px solid #ddd;
-}
-
-.actions {
-  display: flex;
-}
-
-.check-btn {
-  background: none;
-  border: none;
-  font-size: 1.5em;
-  cursor: pointer;
-}
 </style>
