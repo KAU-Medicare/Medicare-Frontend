@@ -100,7 +100,6 @@ export default {
   font-size: 10px;
   flex: 1;  /* 동일한 크기로 아이템들 분할 */
   -webkit-tap-highlight-color: transparent; 
-  padding: 5px 0; /* 상하 여백 추가 */
 }
 
 .nav-img {
