@@ -1,9 +1,5 @@
 <template>
   <div class="user-component">
-    <!-- 로그인 -->
-    <button @click="login">카카오 로그인</button>
-    <p v-if="user">{{ user.nickname }}님 환영합니다!</p>
-
     <!-- 닉네임 변경 -->
     <div v-if="user">
       <input v-model="newNickname" placeholder="새 닉네임 입력" />

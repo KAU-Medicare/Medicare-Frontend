@@ -1,33 +1,22 @@
 <template>
   <div>
-    <h1 v-if="!userLoggedIn" class="center-container">로그인 중...</h1>
-    <ProfPage v-if="userLoggedIn" :userInfo="form" />
+    <h1 class="center-container">로그인 중...</h1>
   </div>
 </template>
+
 
 <script>
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import api from "@/services/api";
-import ProfPage from "@/components/ProfPage.vue"; // UserComponent 불러오기
 
 export default {
   name: "KakaoJoin",
-  components: {
-    ProfPage,
-  },
   setup() {
     const route = useRoute();
     const router = useRouter();
     const code = ref("");
-    const form = ref({
-      email: "x",
-      pwd: "x",
-      nickname: "x",
-      kakaotoken: "x",
-    });
     const error = ref(null);
-    const userLoggedIn = ref(false); // 로그인 여부 확인 변수
 
     const getToken = async () => {
       if (!code.value) {
@@ -42,22 +31,12 @@ export default {
             "Content-Type": "application/json",
             Accept: "application/json",
           },
-          withCredentials: false,
+          withCredentials: false, // 쿠키를 포함하지 않도록 설정
         })
         .then((res) => {
-          console.log("Kakao login response:", res);
-          form.value = {
-            email: res.data.email,
-            pwd: res.data.id,
-            nickname: res.data.nickname,
-            kakaotoken: res.data.accessToken,
-          };
-          userLoggedIn.value = true; // 로그인 성공 시 설정
-          router.push({
-            path: "/home",
-            query: { userName: form.value.nickname },
-          });
-          console.log("Nickname sent:", form.value.nickname);
+          console.log("Kakao login response:", res); // 로그인 확인
+          localStorage.setItem("userId", res.data.id); // 로컬 스토리지에 id 저장
+          router.push({ path: "/home" }); // 홈으로 이동
         })
         .catch((err) => {
           console.error("Error fetching token:", err);
@@ -78,9 +57,7 @@ export default {
 
     return {
       code,
-      form,
       error,
-      userLoggedIn,
       getToken,
     };
   },
@@ -90,8 +67,8 @@ export default {
 <style>
 .center-container {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+  justify-content: center; /* 수평 중앙 정렬 */
+  align-items: center; /* 수직 중앙 정렬 */
+  height: 100vh; /* 화면 전체 높이 */
 }
 </style>
