@@ -13,6 +13,8 @@ import SearchByNamePage from '../components/SearchByNamePage.vue'
 import SearchByCameraPage from '../components/SearchByCameraPage.vue'
 const routes = [
   { path: '/login', name: 'LoginPage', component: LoginPage, meta: { page: 0, state: "", requiresAuth: false } },
+  { path: '/kakaojoin', name: 'kakaoJoin', component: KakaoJoin, meta: { page: -1, state: "", requiresAuth: false } },
+  
   { path: '/', name: 'HomePage', component: HomePage, meta: { page: 1, state: 'BotNav', requiresAuth: true  } },
   { path: '/medManage', name: 'MedManagePage', component: MedManagePage, meta: { page: 2, state: 'BotNav', requiresAuth: true } },
   { path: '/nutriSupp', name: 'NutriSuppPage', component: NutriSuppPage, meta: { page: 3, state: "BotNav", requiresAuth: true } },
@@ -20,7 +22,6 @@ const routes = [
   { path: '/prof', name: 'ProfPage', component: ProfPage, meta: { page: 5, state: "BotNav", requiresAuth: true } },
   { path: '/medInfo', name: 'MedInfoPage', component: MedInfoPage, meta: { page: -1, state: "", requiresAuth: true } },
   { path: '/allergyRecord', name: 'AllergyRecordPage', component: AllergyRecordPage, meta: { page: -1, state: "", requiresAuth: true } },
-  { path: '/kakaojoin', name: 'kakaoJoin', component: KakaoJoin, meta: { page: -1, state: "", requiresAuth: true } },
   { path: '/searchByName', name: 'SearchByNamePage', component: SearchByNamePage, meta: { page: -1, state: "", requiresAuth: true } },
   { path: '/searchByCamera', name: 'SearchByCameraPage', component: SearchByCameraPage, meta: { page: -1, state: "", requiresAuth: true } },
 ];
