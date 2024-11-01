@@ -1,17 +1,21 @@
 <template>
   <div>
-    <h1 class="center-container">로그인 중...</h1>
+    <h1 v-if="!userLoggedIn" class="center-container">로그인 중...</h1>
+    <ProfPage v-if="userLoggedIn" :userInfo="form" />
   </div>
 </template>
-
 
 <script>
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import api from "@/services/api";
+import ProfPage from "@/components/ProfPage.vue"; // UserComponent 불러오기
 
 export default {
   name: "KakaoJoin",
+  components: {
+    ProfPage,
+  },
   setup() {
     const route = useRoute();
     const router = useRouter();
@@ -23,6 +27,7 @@ export default {
       kakaotoken: "x",
     });
     const error = ref(null);
+    const userLoggedIn = ref(false); // 로그인 여부 확인 변수
 
     const getToken = async () => {
       if (!code.value) {
@@ -37,7 +42,7 @@ export default {
             "Content-Type": "application/json",
             Accept: "application/json",
           },
-          withCredentials: false, // 쿠키를 포함하지 않도록 설정
+          withCredentials: false,
         })
         .then((res) => {
           console.log("Kakao login response:", res);
@@ -47,7 +52,8 @@ export default {
             nickname: res.data.nickname,
             kakaotoken: res.data.accessToken,
           };
-          router.push({ // 값을 홈으로 보내줌
+          userLoggedIn.value = true; // 로그인 성공 시 설정
+          router.push({
             path: "/home",
             query: { userName: form.value.nickname },
           });
@@ -74,6 +80,7 @@ export default {
       code,
       form,
       error,
+      userLoggedIn,
       getToken,
     };
   },
@@ -83,8 +90,8 @@ export default {
 <style>
 .center-container {
   display: flex;
-  justify-content: center; /* 수평 중앙 정렬 */
-  align-items: center; /* 수직 중앙 정렬 */
-  height: 100vh; /* 화면 전체 높이 */
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 </style>

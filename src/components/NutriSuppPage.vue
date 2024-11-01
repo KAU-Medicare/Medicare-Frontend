@@ -1,28 +1,37 @@
 <template>
-  <div>
-    <button @click="startCamera">카메라 사용</button>
-    <video ref="video" width="640" height="480" autoplay></video>
+  <div class="nutriSupp">
+    <h1>화면 이동 포털</h1>
+    <p>테스트 화면 이동 페이지 입니다.</p>
+    <router-link to="/medInfo">
+      <p>약정보 페이지 이동</p>
+    </router-link>
+    <router-link to="/allergyRecord">
+      <p>알러지 등록 페이지 이동</p>
+    </router-link>
+    <router-link to="/searchByName">
+      <p>약 이름 검색 페이지 이동</p>
+    </router-link>
+    <router-link to="/searchByCamera">
+      <p>약 카메라 검색 페이지 이동</p>
+    </router-link>
   </div>
 </template>
 
 <script>
 export default {
-  methods: {
-    async startCamera() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        this.$refs.video.srcObject = stream;
-      } catch (error) {
-        console.error('카메라에 접근할 수 없습니다:', error);
-      }
-    },
-  },
+  name: 'NutriSuppPage'
 };
-
 </script>
 
-<style scoped>
-video {
-  border: 1px solid black;
+<style>
+.nutriSupp {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-color: yellow;
 }
 </style>
