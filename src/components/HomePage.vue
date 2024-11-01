@@ -54,7 +54,7 @@ export default {
   },
 
   mounted() {
-    this.userName = localStorage.getItem("userId"); // 카카오조인에서 닉네임 받아오기
+    this.userName = localStorage.getItem("userName"); // 카카오조인에서 닉네임 받아오기
 
     fetch("/assets/mediList.json") // 약 리스트 가져오기
       .then((response) => {
