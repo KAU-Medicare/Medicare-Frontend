@@ -1,6 +1,7 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router'; // router 가져오기
+import './registerServiceWorker'
 
 createApp(App)
   .use(router) // router 사용
