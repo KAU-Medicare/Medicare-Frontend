@@ -1,208 +1,148 @@
 <template>
-  <div class="container">
-    <div class="search-bar">
-      <input
-        v-model="searchQuery"
-        placeholder="찾고 있는 약 및 영양제가 있나요?"
-        @input="filterMedicines"
-      />
-      <button class="search-button" @click="filterMedicines">검색</button>
+  <div class="user-component">
+    <!-- 로그인 -->
+    <button @click="login">카카오 로그인</button>
+    <p v-if="user">{{ user.nickname }}님 환영합니다!</p>
+
+    <!-- 닉네임 변경 -->
+    <div v-if="user">
+      <input v-model="newNickname" placeholder="새 닉네임 입력" />
+      <button @click="changeNickname">닉네임 변경</button>
     </div>
 
-    <div class="medicine-list">
-      <div v-if="searchQuery && filteredMedicines.length > 0" class="medicine-grid">
-        <div v-for="medicine in filteredMedicines" :key="medicine.id" class="medicine-card">
-          <img :src="medicine.img" alt="의약품 이미지" class="medicine-image" />
-          <div class="medicine-info">
-            <h3>{{ medicine.name }}</h3>
-            <p>{{ medicine.from }}</p>
-          </div>
-        </div>
-      </div>
-      <div v-else-if="searchQuery" class="no-results">
-        <p>검색 결과가 없습니다.</p>
-      </div>
-    </div>
+    <!-- 로그아웃 -->
+    <button v-if="user" @click="logout">로그아웃</button>
+
+    <!-- 회원 존재 여부 확인 -->
+    <input v-model="checkId" placeholder="회원 ID 확인" />
+    <button @click="checkUser">회원 존재 여부 확인</button>
+    <p v-if="userExists !== null">
+      회원 {{ userExists ? "존재" : "존재하지 않음" }}
+    </p>
+
+    <!-- 회원 정보 조회 -->
+    <input v-model="searchId" placeholder="조회할 회원 ID 입력" />
+    <button @click="getUserInfo">회원 정보 조회</button>
+    <p v-if="searchedUser">조회된 회원: {{ searchedUser.nickname }}</p>
+
+    <!-- 전체 회원 조회 -->
+    <button @click="getAllUsers">전체 회원 조회</button>
+    <ul v-if="allUsers.length">
+      <li v-for="(user, index) in allUsers" :key="index">
+        {{ user.nickname }}
+      </li>
+    </ul>
   </div>
 </template>
 
 <script>
+import UserService from "@/services/UserService";
+
 export default {
   data() {
     return {
-      searchQuery: '',
-      medicines: [],
-      filteredMedicines: []
+      code: "", // 카카오 로그인 코드
+      user: null, // 현재 로그인한 사용자 정보
+      newNickname: "", // 새 닉네임 입력값
+      checkId: "", // 존재 여부 확인을 위한 ID
+      userExists: null, // 회원 존재 여부
+      searchId: "", // 검색할 사용자 ID
+      searchedUser: null, // 검색된 사용자 정보
+      allUsers: [], // 모든 사용자 목록
     };
   },
-  mounted() {
-    fetch('/assets/test.json')
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then((data) => {
-        this.medicines = data;
-        this.filteredMedicines = data; 
-      })
-      .catch((error) => {
-        console.error('There was a problem with the fetch operation:', error);
-      });
-  },
   methods: {
-    filterMedicines() {
-      const query = this.searchQuery.toLowerCase(); 
-      this.filteredMedicines = this.medicines.filter((medicine) =>
-        medicine.name.toLowerCase().includes(query) 
-      );
-    }
-  }
+    // 로그인
+    async login() {
+      try {
+        // code는 실제로 카카오 인증 후 얻어야 함
+        const response = await UserService.kakaoLogin(this.code);
+        this.user = response.data;
+        alert(`${this.user.nickname}님 로그인 성공!`);
+      } catch (error) {
+        console.error("카카오 로그인 에러:", error);
+      }
+    },
+
+    // 닉네임 변경
+    async changeNickname() {
+      try {
+        const response = await UserService.updateNickname(
+          this.user.kakaoId,
+          this.newNickname
+        );
+        this.user = response.data;
+        alert("닉네임이 성공적으로 변경되었습니다!");
+      } catch (error) {
+        console.error("닉네임 변경 에러:", error);
+      }
+    },
+
+    // 로그아웃
+    async logout() {
+      try {
+        await UserService.logout(this.user.kakaoId);
+        this.user = null;
+        alert("로그아웃 성공!");
+      } catch (error) {
+        console.error("로그아웃 에러:", error);
+      }
+    },
+
+    // 회원 존재 여부 확인
+    async checkUser() {
+      try {
+        const response = await UserService.checkExistingUser(this.checkId);
+        this.userExists = response.data;
+      } catch (error) {
+        console.error("회원 존재 여부 확인 에러:", error);
+      }
+    },
+
+    // 회원 정보 조회
+    async getUserInfo() {
+      try {
+        const response = await UserService.getUserById(this.searchId);
+        this.searchedUser = response.data;
+      } catch (error) {
+        console.error("회원 정보 조회 에러:", error);
+      }
+    },
+
+    // 전체 회원 조회
+    async getAllUsers() {
+      try {
+        const response = await UserService.getAllUsers();
+        this.allUsers = response.data;
+      } catch (error) {
+        console.error("전체 회원 조회 에러:", error);
+      }
+    },
+  },
 };
 </script>
 
 <style scoped>
-.container {
+.user-component {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  height: 100vh;
-  width: 100vw;
-  overflow-y: auto; 
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  background: white;
+  gap: 10px;
+  max-width: 400px;
+  margin: auto;
 }
 
-.container::-webkit-scrollbar {
-  display: none; /* 크롬, 사파리, 엣지 등 Webkit 기반 브라우저에서 스크롤바 숨기기 */
-}
-
-
-.search-bar {
-  width: 100%;
-  display: flex; 
-  justify-content: center;
-  padding-bottom: 2.5vh;
-  padding-top: 2.5vh;
-  height: 7vh;
-  position: fixed;
-  z-index: 1;
-  background: white;
-  border-bottom: 2px solid #ccc;
-  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1);
-}
-
-.search-bar input {
-  width: 70%; 
-  max-width: 400px; 
-  padding: 12px; 
-  font-size: 16px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: border-color 0.3s ease;
-}
-
-.search-bar input:focus {
-  border-color: #FFBA94; 
-}
-
-.search-button {
-  padding: 12px 20px; 
-  margin-left: 10px; 
-  border: none;
-  border-radius: 8px;
-  background-color: #FFBA94; 
+button {
+  padding: 8px;
+  background-color: #007bff;
   color: white;
+  border: none;
+  border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
-.search-button:hover {
-  background-color: #FF8947; 
-}
-
-.medicine-list {
-  width: 100%;
-  display: flex; 
-  justify-content: center;
-  padding-top: 14.5vh; /* 서치바 크기 */
-  padding-bottom: 13vh;
-  
-
-}
-
-.medicine-grid {
-  display: flex; 
-  flex-direction: column; 
-  align-items: center;
-  gap: 10px; 
-  width: 100%; 
-}
-
-.medicine-card {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  /* max-width: 400px;  */
-  padding: 15px; 
-  background-color: #fff; 
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  width: 80%; 
-  height: 10vh;
-  margin: 5px;
-  border: 1px solid #ccc;
-}
-
-.medicine-card:hover {
-  transform: translateY(-5px); 
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); 
-}
-
-.medicine-image {
-  height: inherit;
-  aspect-ratio: 1;
-  object-fit: cover;
-  border-radius: 10%;
-}
-
-.medicine-info {
-  display: flex;
-  flex-direction: column; 
-  height: 100%;
-  align-items: left;
-  text-align: left; 
-  border-left: 1px solid #ccc;
-  margin-left: 10px;
-  padding-left: 10px;
-  flex: 1;
-}
-
-.medicine-info h3 {
-  font-size: 18px;
-  margin-top: 0;
-  color: #333; 
-  flex: 1;
-}
-
-.medicine-info p {
-  font-size: 14px;
-  display: flex;
-  justify-content: flex-end; /* 수평 방향으로 오른쪽 정렬 */
-  align-items: flex-end; /* 수직 방향으로 아래쪽 정렬 */
-  margin-bottom: 0;
-  color: #666; 
-  flex: 1;
-}
-
-.no-results {
-  text-align: center;
-  margin-top: 20px;
-  font-size: 16px;
-  color: #999; 
+input {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
 }
 </style>

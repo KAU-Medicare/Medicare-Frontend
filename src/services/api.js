@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://kau-medicare.shop/api',
-  withCredentials: true
+  baseURL: process.env.NODE_ENV === 'production' ? 'https://kau-medicare.shop/api' : '/api',
+  withCredentials: true,
 });
 
 export default api;

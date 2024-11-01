@@ -9,6 +9,8 @@ import ProfPage from '../components/ProfPage.vue';
 import MedInfoPage from '../components/MedInfoPage.vue';
 import AllergyRecordPage from '../components/AllergyRecordPage.vue';
 import KakaoJoin from '../components/KakaoJoin.vue'
+import SearchByNamePage from '../components/SearchByNamePage.vue'
+import SearchByCameraPage from '../components/SearchByCameraPage.vue'
 const routes = [
   { path: '/', name: 'LoginPage', component: LoginPage, meta: { page: 0, state: "" } },
   { path: '/home', name: 'HomePage', component: HomePage, meta: { page: 1, state: 'BotNav'  } },
@@ -19,6 +21,8 @@ const routes = [
   { path: '/medInfo', name: 'MedInfoPage', component: MedInfoPage, meta: { page: -1, state: "" } },
   { path: '/allergyRecord', name: 'AllergyRecordPage', component: AllergyRecordPage, meta: { page: -1, state: "" } },
   { path: '/kakaojoin', name: 'kakaoJoin', component: KakaoJoin, meta: { page: -1, state: "" } },
+  { path: '/searchByName', name: 'SearchByNamePage', component: SearchByNamePage, meta: { page: -1, state: "" } },
+  { path: '/searchByCamera', name: 'SearchByCameraPage', component: SearchByCameraPage, meta: { page: -1, state: "" } },
 ];
 
 const router = createRouter({
