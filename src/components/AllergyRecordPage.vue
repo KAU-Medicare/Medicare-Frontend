@@ -260,6 +260,7 @@ export default {
     padding: 20px 22px; /* 모바일에서 추가 세로 길이 증가 */
   }
 }
+
 </style>
 
 
