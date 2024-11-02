@@ -127,7 +127,7 @@ p {
   }
 
   .nav-img {
-    max-height: 30px; 
+    max-height: 50px; 
   }
 }
 </style>
