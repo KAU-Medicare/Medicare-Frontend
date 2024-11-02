@@ -11,7 +11,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .allergyInf {
   display: flex;
   flex-direction: column;
