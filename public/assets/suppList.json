@@ -1,7 +1,7 @@
 [
     {
         "id": 1,
-        "name": "1번 영양제",
+        "name": "비타민 C",
         "date": ["일", "화", "목", "토"],
         "isAlert": true,
         "time": "12:30 PM",
@@ -13,10 +13,10 @@
     },
     {
         "id": 2,
-        "name": "2번 영양제",
-        "date": ["일", "화", "목", "토"],
-        "isAlert": true,
-        "time": "12:30 PM",
+        "name": "오메가 3",
+        "date": ["수", "금"],
+        "isAlert": false,
+        "time": "06:30 PM",
         "singleDose": 2,
         "isRemain": true,
         "remainAmount": 10,
