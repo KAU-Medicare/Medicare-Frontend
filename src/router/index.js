@@ -34,16 +34,16 @@ const router = createRouter({
   routes,
 });
 
-// router.beforeEach((to, from, next) => {
-//   const isAuthenticated = localStorage.getItem("userId"); // 로컬스토리지에서 사용자 ID 확인
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = localStorage.getItem("userId"); // 로컬스토리지에서 사용자 ID 확인
 
-//   if (to.meta.requiresAuth && !isAuthenticated) {
-//     // 인증이 필요하고 로그인되어 있지 않다면 로그인 페이지로 리다이렉트
-//     next({ path: "/login" });
-//   } else {
-//     // 그렇지 않으면 해당 경로로 이동
-//     next();
-//   }
-// });
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    // 인증이 필요하고 로그인되어 있지 않다면 로그인 페이지로 리다이렉트
+    next({ path: "/login" });
+  } else {
+    // 그렇지 않으면 해당 경로로 이동
+    next();
+  }
+});
 
 export default router;

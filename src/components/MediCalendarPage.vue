@@ -1,42 +1,74 @@
 <template>
-  <div class="calendar-container">
-    <v-calendar
-      v-model="selectedDate"
-      :attributes="attributes"
-      is-expanded
-      locale="ko"
-      @dayclick="onDayClick"
-    />
+  <div class="container">
+    <h1>복약 일지</h1>
+    <div class="calendar-container">
+      <VDatePicker
+        class="my-calendar"
+        v-model="selectedDate"
+        :attributes="attributes"
+        expanded
+        locale="ko"
+        mode="date"
+        @dayclick="onDayClick"
+      />
+    </div>
+    <h2 class="left-aligned">복약 정보</h2>
+    <section class="section">
+      <MedicineCard
+        v-for="(item, index) in mediList"
+        :key="index"
+        :item="item"
+        @check="handleCheck"
+      />
+    </section>
+    <span class="bar"></span>
+    <section class="section">
+      <MedicineCard
+        v-for="(item, index) in suppList"
+        :key="index"
+        :item="item"
+        @check="handleCheck"
+      />
+    </section>
+    <span class="bar" style="border-bottom: 1px solid #333"></span>
+    <h2 class="left-aligned">알레르기 정보</h2>
+    <NoneAllergyCard class="section"/>
   </div>
 </template>
 
 <script>
-import { ref } from 'vue';
-import 'v-calendar/dist/style.css';
+import { ref } from "vue";
+import "v-calendar/dist/style.css";
+import MedicineCard from "@/components/cards/MedicineCard.vue";
+import NoneAllergyCard from "@/components/cards/NoneAllergyCard.vue";
 
 export default {
-  name: 'MediCalendar',
+  name: "MediCalendar",
+
+  data() {
+    return {
+      mediList: [], // 약 json이 담길 변수
+      suppList: [], // 영양제 json이 담길 변수
+    };
+  },
+
+  components: {
+    MedicineCard,
+    NoneAllergyCard,
+  },
+
   setup() {
-    // 선택된 날짜 상태
     const selectedDate = ref(new Date());
 
-    // 스타일링을 위한 속성
     const attributes = ref([
       {
-        key: 'today',
+        key: "today",
         dates: new Date(),
-        customData: { isToday: true },
-      },
-      {
-        key: 'weekend',
-        dates: { weekdays: [0, 6] }, // 주말: 일요일(0), 토요일(6)
-        customData: { isWeekend: true },
       },
     ]);
 
     const onDayClick = (day) => {
       console.log(`선택된 날짜: ${day.date}`);
-      // 필요한 기능 추가 가능
     };
 
     return {
@@ -45,43 +77,91 @@ export default {
       onDayClick,
     };
   },
+
+  mounted() {
+    fetch("/assets/mediList.json") // 약 리스트 가져오기
+      .then((response) => {
+        // 가져온 결과 보고
+        if (!response.ok) {
+          // 못 가져왔으면
+          throw new Error("약 리스트를 가져올 수 없습니다"); // 에러 메세지 출력 후 중단
+        }
+        return response.json(); // 정상이면 응답을 json 형식으로 변환
+      })
+      .then((mediListData) => {
+        // 가져온 데이터 이름을 mediListData로 설정
+        this.mediList = mediListData; // mediList 변수에 넣어줌
+
+        return fetch("/assets/suppList.json"); // 이제 영양제 리스트 가져옴
+      })
+      .then((response) => {
+        // 가져온 결과 보고
+        if (!response.ok) {
+          // 못 가져왔으면
+          throw new Error("영양제 리스트를 가져올 수 없습니다"); // 에러 메세지 출력 후 중단
+        }
+        return response.json(); // 정상이면 응답을 json 형식으로 변환
+      })
+      .then((suppListData) => {
+        // 가져온 데이터 이름을 suppListData로 설정
+        this.suppList = suppListData; // suppList 변수에 넣어줌
+      })
+      .catch((error) => {
+        // 오류 발생 시 위에서 throw한 에러메세지 출력
+        console.error("오류 발생 : ", error);
+      });
+  },
 };
 </script>
 
-<style scoped>
-.calendar-container {
-  max-width: 400px;
+<style>
+.section {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.left-aligned {
+  align-self: flex-start; /* 부모의 중앙 정렬에서 벗어나 왼쪽 정렬 */
+  text-align: left; /* 특정 요소에 왼쪽 정렬 적용 */
+  margin-left: 0; /* 필요시 왼쪽 여백 초기화 */
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1vh 5vw 11vh 5vw;
+  max-width: 600px;
+  width: 90vw;
   margin: auto;
+  overflow-y: auto;
+  max-height: 80%;
+}
+
+.calendar-container {
+  max-width: 600px;
+  margin: auto;
+  width: 100%;
   border-radius: 10px;
-  border: 1px solid #ddd;
-  padding: 16px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.vc-title {
-  font-size: 1.5em;
-  font-weight: bold;
-  color: #333;
+.my-calendar .vc-weekday-1 {
+  color: red;
 }
 
-.vc-weeks .vc-weekday {
-  color: #999 !important; /* 요일 텍스트 색상 */
+.my-calendar .vc-weekday-7 {
+  color: #6366f1;
 }
 
-/* 오늘 날짜 스타일 */
-.vc-day-content[data-date="today"] {
-  background-color: #ff8947 !important; /* 오늘 날짜 배경색 */
-  color: white !important;
-  border-radius: 50%;
+.bar {
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 10px;
+  width: 100%;
 }
 
-/* 주말 스타일 */
-.vc-day-content[data-date="weekend"] {
-  color: #ff0000 !important; /* 주말 텍스트 색상 */
-}
-
-.vc-day-content {
-  font-weight: 500;
-  color: #333;
+.container h1 {
+  text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3); /* 텍스트 섀도우 추가 */
 }
 </style>
