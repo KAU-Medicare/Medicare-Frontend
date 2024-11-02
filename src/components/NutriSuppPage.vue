@@ -23,7 +23,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .nutriSupp {
   display: flex;
   flex-direction: column;

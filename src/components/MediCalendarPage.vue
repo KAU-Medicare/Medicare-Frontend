@@ -114,7 +114,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .section {
   width: 100%;
   margin-bottom: 20px;

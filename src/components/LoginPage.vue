@@ -40,7 +40,7 @@ export default {
   background: linear-gradient(to bottom, #ff8947, #feb47b);
 }
 .login .logo {
-  height: 40vh;
+  height: 30vh;
   width: auto;
 }
 .login h1 {

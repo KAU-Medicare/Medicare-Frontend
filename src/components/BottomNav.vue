@@ -8,9 +8,9 @@
       <img class="nav-img" :src="currentMedManageImg" alt="medManageBtn" />
       <p>복약관리</p>
     </router-link>  
-    <router-link to="/nutriSupp" class="nav-item">
-      <img class="nav-img" :src="currentNutriSuppImg" alt="nutriSuppBtn" />
-      <p>추천 영양제</p>
+    <router-link to="/chatBot" class="nav-item">
+      <img class="nav-img" :src="currentChatBotImg" alt="chatBotBtn" />
+      <p>AI 챗봇</p>
     </router-link>
     <router-link to="/allergyInf" class="nav-item">
       <img class="nav-img" :src="currentAllergyInfImg" alt="allergyInfBtn" />
@@ -30,8 +30,8 @@ export default {
     return {
       homeBtnImg: require("@/assets/navBtnImg/homeBtn.png"),
       homeBtnActiveImg: require("@/assets/navBtnImg/homeBtnActive.png"),
-      nutriSuppBtnImg: require("@/assets/navBtnImg/nutriSuppBtn.png"),
-      nutriSuppBtnActiveImg: require("@/assets/navBtnImg/nutriSuppBtnActive.png"),
+      chatBotBtnImg: require("@/assets/navBtnImg/chatBotBtn.png"),
+      chatBotBtnActiveImg: require("@/assets/navBtnImg/chatBotBtnActive.png"),
       medManageBtnImg: require("@/assets/navBtnImg/medManageBtn.png"),
       medManageBtnActiveImg: require("@/assets/navBtnImg/medManageBtnActive.png"),
       allergyInfBtnImg: require("@/assets/navBtnImg/allergyInfBtn.png"),
@@ -52,10 +52,10 @@ export default {
         ? this.medManageBtnActiveImg
         : this.medManageBtnImg;
     },
-    currentNutriSuppImg() {
-      return this.$route.path === "/nutriSupp"
-        ? this.nutriSuppBtnActiveImg
-        : this.nutriSuppBtnImg;
+    currentChatBotImg() {
+      return this.$route.path === "/chatBot"
+        ? this.chatBotBtnActiveImg
+        : this.chatBotBtnImg;
     },
     currentAllergyInfImg() {
       return this.$route.path === "/allergyInf"
@@ -71,7 +71,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .bottom-nav {
   display: flex;
   flex-direction: row;
