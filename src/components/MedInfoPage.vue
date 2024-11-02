@@ -1,20 +1,22 @@
 <template>
   <div class="outer-container">
+    <div class="input-group">
+      <button @click="goBack" class="back-button">←</button>
+    </div>
     <div class="inner-container">
-      <button @click="goBack" class="back-button">
-        ←
-      </button>
-
-      <h2>약 정보 추가</h2>
+      <h2>{{ pageTitle }}</h2>
 
       <div class="input-group">
-        <label for="med-name">약 이름</label>
-        <div class="name-wrapper">
-          <input type="text" v-model="medName" :readonly="!editingName" />
-          <button @click="toggleEditName" class="name-change-btn">
-            이름 설정 변경 >
-          </button>
+        <label>약 이름</label>
+        <div class="name-display-wrapper">
+          <span class="med-name-display">{{ medName || "텍스트 이름" }}</span>
+          <button @click="toggleEditName" class="name-change-btn">이름 설정 변경 ></button>
         </div>
+      </div>
+
+      <div v-if="editingName" class="input-group name-edit-group">
+        <label for="med-name">약 이름 수정</label>
+        <input type="text" v-model="medName" />
       </div>
 
       <div class="input-group">
@@ -65,12 +67,14 @@
           <span class="slider round"></span>
         </label>
       </div>
-
+      
       <div v-if="quantityEnabled" class="input-group quantity-amount-group">
         <input type="number" v-model="quantity" min="0" class="quantity-input" /> 
         <span class="type">캡슐</span>
       </div>
+    </div>
 
+    <div class="register-btn-container">
       <button @click="register" class="register-btn">등록하기</button>
     </div>
   </div>
@@ -80,66 +84,110 @@
 export default {
   data() {
     return {
-      medName: '', 
-      editingName: false, 
-      days: ['일', '월', '화', '수', '목', '금', '토'], 
-      selectedDays: [], 
-      alertEnabled: false, 
-      hour: 12, 
-      minute: '00', 
-      ampm: 'AM', 
-      quantityEnabled: false, 
-      quantity: 0, 
-      type: '캡슐', 
+      medName: '',
+      editingName: false,
+      days: ['일', '월', '화', '수', '목', '금', '토'],
+      selectedDays: [],
+      alertEnabled: false,
+      hour: 12,
+      minute: '00',
+      ampm: 'AM',
+      quantityEnabled: false,
+      quantity: 0,
+      pageTitle: '약 정보 추가',
     };
   },
   methods: {
     toggleDay(day) {
       if (this.selectedDays.includes(day)) {
-        this.selectedDays = this.selectedDays.filter((d) => d !== day);
+        this.selectedDays = this.selectedDays.filter(d => d !== day);
       } else {
         this.selectedDays.push(day);
       }
     },
     toggleEditName() {
-
       this.editingName = !this.editingName;
     },
     goBack() {
-      this.$router.push('/home'); 
-    },
-    register() {
       this.$router.push('/home');
     },
+    async register() {
+      const dayOrder = ['일', '월', '화', '수', '목', '금', '토'];
+      this.selectedDays.sort((a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b));
+
+      const data = {
+        Name: this.medName,
+        Date: this.selectedDays,
+        isAlert: this.alertEnabled,
+        Time: `${this.hour}:${this.minute} ${this.ampm}`,
+        isRemain: this.quantityEnabled,
+        RemainAmount: this.quantity,
+        Type: '캡슐'
+      };
+
+      try {
+        const response = await fetch('/api/medicine', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+          throw new Error('데이터 저장에 실패했습니다.');
+        }
+        
+        const result = await response.json();
+        alert(result.message || '데이터가 저장되었습니다.');
+        this.$router.push('/home');
+      } catch (error) {
+        console.error('데이터 저장 중 오류:', error);
+        alert('데이터 저장에 문제가 발생했습니다.');
+      }
+    }
   },
   mounted() {
-    fetch("/assets/test2.json")
-      .then((response) => response.json())
-      .then((data) => {
-        this.medName = data.Name;
-        this.selectedDays = data.Date;
-        this.alertEnabled = data.isAlert;
-        this.hour = parseInt(data.Time.split(":")[0]);
-        this.minute = data.Time.split(":")[1].split(" ")[0];
-        this.ampm = data.Time.includes('PM') ? 'PM' : 'AM';
-        this.quantityEnabled = data.isRemain;
-        this.quantity = data.RemainAmount;
-        this.type = data.Type;
+    fetch('/api/medicine')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('데이터를 불러오는 중 오류가 발생했습니다.');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data && data.Name) {
+          this.pageTitle = '약 정보 수정';
+          this.medName = data.Name;
+          this.selectedDays = data.Date;
+          this.alertEnabled = data.isAlert;
+          this.hour = parseInt(data.Time.split(':')[0]);
+          this.minute = data.Time.split(':')[1].split(' ')[0];
+          this.ampm = data.Time.includes('PM') ? 'PM' : 'AM';
+          this.quantityEnabled = data.isRemain;
+          this.quantity = data.RemainAmount;
+        } else {
+          this.pageTitle = '약 정보 추가';
+        }
+      })
+      .catch(error => {
+        console.error('데이터 불러오기 중 오류:', error);
+        alert('데이터를 불러오는 중 문제가 발생했습니다.');
       });
-  },
+  }
 };
 </script>
 
 <style scoped>
 .outer-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh; 
   width: 100vw;
   background-color: white;
   box-sizing: border-box;
-  overflow: hidden; 
   padding: 0; 
   margin: 0;  
 }
@@ -149,15 +197,13 @@ export default {
   width: 100%;
   padding: 20px; 
   background-color: white;
-  border-radius: 0px;
-  box-shadow: none;
   font-family: Arial, sans-serif;
-  position: relative;
-  height: 100%; 
+  overflow-y: auto;
+  padding-bottom: 70px; 
 }
 
 .back-button {
-  position: absolute;
+  position: fixed;
   top: 10px;
   left: 10px;
   background: none;
@@ -170,7 +216,7 @@ export default {
 }
 
 h2 {
-  text-align: center;
+  /*text-align: center;*/
   font-size: 1.8rem;
   margin-bottom: 10px;
 }
@@ -183,6 +229,42 @@ h2 {
   display: block;
   margin-bottom: 5px;
   font-size: 1.4rem;
+}
+
+.name-display-wrapper {
+  position: relative;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+  height: 50px; 
+  display: flex;
+  align-items: center; 
+}
+
+.med-name-display {
+  font-size: 1.2rem;
+  color: #333;
+  flex: 1; 
+}
+
+.name-change-btn {
+  position: absolute;
+  right: 10px;
+  bottom: 5px;
+  background: none;
+  border: none;
+  color: #808080;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.name-change-btn:hover {
+  text-decoration: underline;
+}
+
+.name-edit-group {
+  margin-top: 10px;
 }
 
 input[type="text"],
@@ -204,24 +286,6 @@ input[type="number"] {
 .type {
   font-size: 1.2rem;
   margin-left: 10px;
-}
-
-.name-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.name-change-btn {
-  padding: 10px;
-  background-color: white;
-  border: none;
-  color: #ffa500;
-  cursor: pointer;
-}
-
-.name-change-btn:hover {
-  text-decoration: underline;
 }
 
 .days {
@@ -259,9 +323,9 @@ input[type="number"] {
 
 .ampm-select {
   padding: 10px;
-  margin-right: 15px;
+  margin-right: 10px; 
   font-size: 1.2rem;
-  width: 80px;
+  width: 85px; 
 }
 
 .time-select {
@@ -291,6 +355,12 @@ input[type="number"] {
   display: flex;
   justify-content: flex-end;
   align-items: center;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 15px 0;
 }
 
 .switch {
@@ -338,8 +408,18 @@ input:checked + .slider:before {
   transform: translateX(24px);
 }
 
+.register-btn-container {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  background-color: white;
+  padding: 10px 0;
+}
 
 .register-btn {
+  max-width: 900px;
   width: 100%;
   padding: 12px;
   background-color: #ffa500;
@@ -348,17 +428,16 @@ input:checked + .slider:before {
   border-radius: 5px;
   font-size: 1.3rem;
   cursor: pointer;
-  margin-top: 20px; 
+  text-align: center;
 }
 
 .register-btn:hover {
   background-color: #ff8c00;
 }
 
-
 @media (max-width: 768px) {
   .outer-container {
-    padding: 10px;
+    padding: 15px;
   }
 
   .inner-container {
