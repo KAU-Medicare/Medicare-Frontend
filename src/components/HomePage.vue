@@ -41,7 +41,7 @@ export default {
       userId: 0, // 사용자의 아이디가 담길 변수
       mediList: [], // 약 json이 담길 변수
       suppList: [], // 영양제 json이 담길 변수
-      searchedUser: {}, // id로 검색된 유저 객체
+      searchedUser: [], // id로 검색된 유저 객체
     };
   },
 
