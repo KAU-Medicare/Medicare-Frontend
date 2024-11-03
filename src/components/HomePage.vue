@@ -2,7 +2,7 @@
   <div class="container">
     <!-- Welcome Message -->
     <div class="welcome-msg">
-      <span class="name">{{ searchedUser.nickname }}</span
+      <span class="name">{{ searchedUser?.nickname }}</span
       ><span>님, 환영합니다!</span>
     </div>
 
@@ -41,7 +41,7 @@ export default {
       userId: 0, // 사용자의 아이디가 담길 변수
       mediList: [], // 약 json이 담길 변수
       suppList: [], // 영양제 json이 담길 변수
-      searchedUser: null, // id로 검색된 유저
+      searchedUser: {}, // id로 검색된 유저 객체
     };
   },
 
@@ -65,7 +65,7 @@ export default {
   },
 
   mounted() {
-    this.userId = localStorage.getItem("userId"); // 로컬스토리지에 저장된 Id 받아오기
+    this.userId = Number(localStorage.getItem("userId")); // 로컬스토리지에 저장된 Id 받아오기
     this.getUserInfo(); // Id를 통한 유저 정보 받아오기
 
     fetch("/assets/mediList.json") // 약 리스트 가져오기
