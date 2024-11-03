@@ -27,6 +27,10 @@
 </template>
 
 <script>
+import axios from "axios";
+import fs from "fs";
+import path from "path";
+
 export default {
   data() {
     return {
@@ -35,27 +39,53 @@ export default {
       filteredMedicines: []
     };
   },
-  mounted() {
-    fetch('/assets/test.json')
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then((data) => {
-        this.medicines = data;
-        this.filteredMedicines = data; 
-      })
-      .catch((error) => {
-        console.error('There was a problem with the fetch operation:', error);
-      });
+  async mounted() {
+    const filePath = path.join(__dirname, "public/assets/testMedList.json");
+
+    // 1. 파일이 존재하고 데이터가 있으면 가져오기
+    if (fs.existsSync(filePath)) {
+      const fileData = fs.readFileSync(filePath, "utf8");
+      if (fileData && JSON.parse(fileData).length > 0) {
+        this.medicines = JSON.parse(fileData);
+        this.filteredMedicines = this.medicines;
+        return; // 파일에 데이터가 있으므로 종료
+      }
+    }
+
+    // 2. 파일이 비어 있으면 서버에서 데이터 가져오기
+    try {
+      const batchSize = 100;
+      const totalItems = 11410;
+      const allData = [];
+
+      for (let i = 0; i < totalItems; i += batchSize) {
+        // 100개씩 ID 배열 생성
+        const ids = Array.from({ length: batchSize }, (_, index) => i + index + 1).filter(id => id <= totalItems);
+        
+        // 각각의 ID에 대해 요청 생성
+        const requests = ids.map(id => axios.get(`/api/medicines/${id}`));
+
+        // 현재 배치 요청 실행 및 응답 저장
+        const responses = await Promise.all(requests);
+        allData.push(...responses.map(response => response.data));
+      }
+
+      // 전체 데이터를 medicines와 filteredMedicines에 저장
+      this.medicines = allData;
+      this.filteredMedicines = allData;
+
+      // 가져온 데이터를 JSON 파일로 저장
+      fs.writeFileSync(filePath, JSON.stringify(allData, null, 2), "utf8");
+      console.log("testMedList.json에 데이터를 성공적으로 저장했습니다.");
+    } catch (error) {
+      console.error("데이터를 가져오거나 저장하는 중 오류 발생:", error);
+    }
   },
   methods: {
     filterMedicines() {
-      const query = this.searchQuery.toLowerCase(); 
-      this.filteredMedicines = this.medicines.filter((medicine) =>
-        medicine.name.toLowerCase().includes(query) 
+      const query = this.searchQuery.toLowerCase();
+      this.filteredMedicines = this.medicines.filter(medicine =>
+        medicine.name.toLowerCase().includes(query)
       );
     }
   }
