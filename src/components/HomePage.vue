@@ -2,7 +2,7 @@
   <div class="container">
     <!-- Welcome Message -->
     <div class="welcome-msg">
-      <span class="name">{{ searchedUser?.nickname }}</span
+      <span class="name">{{ searchedUser.nickname }}</span
       ><span>님, 환영합니다!</span>
     </div>
 
@@ -41,7 +41,7 @@ export default {
       userId: 0, // 사용자의 아이디가 담길 변수
       mediList: [], // 약 json이 담길 변수
       suppList: [], // 영양제 json이 담길 변수
-      searchedUser: [], // id로 검색된 유저 객체
+      searchedUser: null, // id로 검색된 유저
     };
   },
 
