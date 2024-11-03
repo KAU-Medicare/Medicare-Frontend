@@ -2,7 +2,7 @@
   <div class="container">
     <!-- Welcome Message -->
     <div class="welcome-msg">
-      <span class="name">{{ userName }}</span
+      <span class="name">{{ searchedUser.nickname }}</span
       ><span>님, 환영합니다!</span>
     </div>
 
@@ -21,25 +21,27 @@
     <section class="section">
       <h2>오늘 먹을 영양제</h2>
       <MedicineCard
-      v-for="(item, index) in suppList"
-      :key="index"
-      :item="item"
-      @check="handleCheck"
-    />
+        v-for="(item, index) in suppList"
+        :key="index"
+        :item="item"
+        @check="handleCheck"
+      />
     </section>
   </div>
 </template>
 
 <script>
 import MedicineCard from "@/components/cards/MedicineCard.vue";
+import UserService from "@/services/UserService";
 
 export default {
   name: "HomePage",
   data() {
     return {
-      userName: "너 누구야", // 사용자의 이름이 담길 변수
+      userId: 0, // 사용자의 아이디가 담길 변수
       mediList: [], // 약 json이 담길 변수
       suppList: [], // 영양제 json이 담길 변수
+      searchedUser: null, // id로 검색된 유저
     };
   },
 
@@ -51,10 +53,20 @@ export default {
     handleCheck(item) {
       console.log(`${item.name} checked!`);
     },
+
+    async getUserInfo() {
+      try {
+        const response = await UserService.getUserById(this.userId);
+        this.searchedUser = response.data;
+      } catch (error) {
+        console.error("회원 정보 조회 에러:", error);
+      }
+    },
   },
 
   mounted() {
-    this.userName = localStorage.getItem("userName"); // 카카오조인에서 닉네임 받아오기
+    this.userId = localStorage.getItem("userId"); // 로컬스토리지에 저장된 Id 받아오기
+    this.getUserInfo(); // Id를 통한 유저 정보 받아오기
 
     fetch("/assets/mediList.json") // 약 리스트 가져오기
       .then((response) => {
@@ -131,6 +143,4 @@ export default {
   width: 100%;
   margin-bottom: 20px;
 }
-
-
 </style>
