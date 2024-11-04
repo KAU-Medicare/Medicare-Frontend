@@ -27,7 +27,7 @@ const routes = [
   { path: '/allergyRecord', name: 'AllergyRecordPage', component: AllergyRecordPage, meta: { page: -1, state: "", requiresAuth: true } },
   { path: '/searchByName', name: 'SearchByNamePage', component: SearchByNamePage, meta: { page: -1, state: "", requiresAuth: true } },
   { path: '/searchByCamera', name: 'SearchByCameraPage', component: SearchByCameraPage, meta: { page: -1, state: "", requiresAuth: true } },
-  { path: '/mediCalendar', name: 'MediCalendarPage', component: MediCalendarPage, meta: { page: -1, state: "", requiresAuth: true } },
+  { path: '/mediCalendar', name: 'MediCalendarPage', component: MediCalendarPage, meta: { page: 2, state: "BotNav", requiresAuth: true } },
   { path: '/nutriSupp', name: 'NutriSuppPage', component: NutriSuppPage, meta: { page: -1, state: "BotNav", requiresAuth: true } },
 ];
 

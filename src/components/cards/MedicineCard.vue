@@ -56,6 +56,7 @@ export default {
   margin-bottom: 10px;
   outline: 1px solid #ddd;
   transition: background-color 0.3s ease; /* 부드러운 배경 전환 */
+  cursor: pointer;
 }
 
 .name {

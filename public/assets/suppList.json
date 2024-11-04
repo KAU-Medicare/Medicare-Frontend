@@ -2,7 +2,7 @@
     {
         "id": 1,
         "name": "비타민 C",
-        "date": ["일", "화", "목", "토"],
+        "date": ["일", "월", "화", "목", "토"],
         "isAlert": true,
         "time": "12:30 PM",
         "singleDose": 1,
@@ -14,7 +14,7 @@
     {
         "id": 2,
         "name": "오메가 3",
-        "date": ["수", "금"],
+        "date": ["수", "월", "금"],
         "isAlert": false,
         "time": "06:30 PM",
         "singleDose": 2,

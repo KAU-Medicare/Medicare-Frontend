@@ -124,10 +124,10 @@ export default {
       this.isExpanded = !this.isExpanded;
     },
     handlePillClick() {
-      // 약 버튼 클릭 시 동작
+      this.$router.push("/searchByName"); // /mediCalendar 경로로 이동
     },
     handleSupplementClick() {
-      // 영양제 버튼 클릭 시 동작
+      this.$router.push("/searchByName"); // 영양제 버튼 클릭 시 동작
     },
     toggleModal(event) {
       const offsetY = 0; // 모달을 클릭 위치 위로 띄울 거리 (조정 가능)
