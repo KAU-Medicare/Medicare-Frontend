@@ -1,9 +1,9 @@
 <template>
   <div class="container">
     <!-- Welcome Message -->
-    <div class="welcome-msg">
-      <span class="name">{{ searchedUser.nickname }}</span
-      ><span>님, 환영합니다!</span>
+    <div class="welcome-msg" v-if="searchedUser.nickname">
+      <span class="name">{{ searchedUser.nickname }}</span>
+      <span>님, 환영합니다!</span>
     </div>
 
     <!-- Medication Section -->
@@ -43,7 +43,7 @@ export default {
       suppList: [], // 영양제 json이 담길 변수
       todayMediList: [], // 오늘 먹을 약 리스트
       todaySuppList: [], // 오늘 먹을 영양제 리스트
-      searchedUser: [], // id로 검색된 유저
+      searchedUser: {}, // id로 검색된 유저 객체
     };
   },
 
