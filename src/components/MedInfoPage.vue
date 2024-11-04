@@ -2,9 +2,9 @@
   <div class="outer-container">
     <div class="input-group">
       <button @click="goBack" class="back-button">←</button>
+            <h2>{{ pageTitle }}</h2>
     </div>
     <div class="inner-container">
-      <h2>{{ pageTitle }}</h2>
 
       <div class="input-group">
         <label>약 이름</label>
@@ -109,71 +109,75 @@ export default {
       this.editingName = !this.editingName;
     },
     goBack() {
-      this.$router.push('/home');
+      this.$router.push('/searchByName');
     },
     async register() {
-      const dayOrder = ['일', '월', '화', '수', '목', '금', '토'];
-      this.selectedDays.sort((a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b));
+      this.$router.push("/medManage");
+      // const dayOrder = ['일', '월', '화', '수', '목', '금', '토'];
+      // this.selectedDays.sort((a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b));
 
-      const data = {
-        Name: this.medName,
-        Date: this.selectedDays,
-        isAlert: this.alertEnabled,
-        Time: `${this.hour}:${this.minute} ${this.ampm}`,
-        isRemain: this.quantityEnabled,
-        RemainAmount: this.quantity,
-        Type: '캡슐'
-      };
+      // const data = {
+      //   Name: this.medName,
+      //   Date: this.selectedDays,
+      //   isAlert: this.alertEnabled,
+      //   Time: `${this.hour}:${this.minute} ${this.ampm}`,
+      //   isRemain: this.quantityEnabled,
+      //   RemainAmount: this.quantity,
+      //   Type: '캡슐'
+      // };
 
-      try {
-        const response = await fetch('/api/medicine', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-        });
+      // try {
+      //   const response = await fetch('/api/medicine', {
+      //     method: 'POST',
+      //     headers: {
+      //       'Content-Type': 'application/json'
+      //     },
+      //     body: JSON.stringify(data)
+      //   });
 
-        if (!response.ok) {
-          throw new Error('데이터 저장에 실패했습니다.');
-        }
+      //   if (!response.ok) {
+      //     throw new Error('데이터 저장에 실패했습니다.');
+      //   }
         
-        const result = await response.json();
-        alert(result.message || '데이터가 저장되었습니다.');
-        this.$router.push('/home');
-      } catch (error) {
-        console.error('데이터 저장 중 오류:', error);
-        alert('데이터 저장에 문제가 발생했습니다.');
-      }
+      //   const result = await response.json();
+      //   alert(result.message || '데이터가 저장되었습니다.');
+      //   this.$router.push('/home');
+      // } catch (error) {
+      //   console.error('데이터 저장 중 오류:', error);
+      //   alert('데이터 저장에 문제가 발생했습니다.');
+      // }
+
+
     }
   },
-  mounted() {
-    fetch('/api/medicine')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('데이터를 불러오는 중 오류가 발생했습니다.');
-        }
-        return response.json();
-      })
-      .then(data => {
-        if (data && data.Name) {
-          this.pageTitle = '약 정보 수정';
-          this.medName = data.Name;
-          this.selectedDays = data.Date;
-          this.alertEnabled = data.isAlert;
-          this.hour = parseInt(data.Time.split(':')[0]);
-          this.minute = data.Time.split(':')[1].split(' ')[0];
-          this.ampm = data.Time.includes('PM') ? 'PM' : 'AM';
-          this.quantityEnabled = data.isRemain;
-          this.quantity = data.RemainAmount;
-        } else {
-          this.pageTitle = '약 정보 추가';
-        }
-      })
-      .catch(error => {
-        console.error('데이터 불러오기 중 오류:', error);
-        alert('데이터를 불러오는 중 문제가 발생했습니다.');
-      });
+  async mounted() {
+    this.medName = this.$route.query.name;
+    // fetch('/api/medicine')
+    //   .then(response => {
+    //     if (!response.ok) {
+    //       throw new Error('데이터를 불러오는 중 오류가 발생했습니다.');
+    //     }
+    //     return response.json();
+    //   })
+    //   .then(data => {
+    //     if (data && data.Name) {
+    //       this.pageTitle = '약 정보 수정';
+    //       this.medName = data.Name;
+    //       this.selectedDays = data.Date;
+    //       this.alertEnabled = data.isAlert;
+    //       this.hour = parseInt(data.Time.split(':')[0]);
+    //       this.minute = data.Time.split(':')[1].split(' ')[0];
+    //       this.ampm = data.Time.includes('PM') ? 'PM' : 'AM';
+    //       this.quantityEnabled = data.isRemain;
+    //       this.quantity = data.RemainAmount;
+    //     } else {
+    //       this.pageTitle = '약 정보 추가';
+    //     }
+    //   })
+    //   .catch(error => {
+    //     console.error('데이터 불러오기 중 오류:', error);
+    //     alert('데이터를 불러오는 중 문제가 발생했습니다.');
+    //   });
   }
 };
 </script>
@@ -182,7 +186,7 @@ export default {
 .outer-container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: top;
   align-items: center;
   height: 100vh; 
   width: 100vw;
@@ -193,11 +197,13 @@ export default {
 }
 
 .inner-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   max-width: 900px;
   width: 100%;
   padding: 20px; 
   background-color: white;
-  font-family: Arial, sans-serif;
   overflow-y: auto;
   padding-bottom: 70px; 
 }

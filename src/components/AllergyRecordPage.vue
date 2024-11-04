@@ -151,7 +151,7 @@ export default {
 }
 
 .title {
-  font-size: 20px;
+  font-size: 3vh;
   margin-left: -8px;
 }
 
@@ -232,25 +232,14 @@ export default {
   max-width: 600px;
   position: fixed;
   bottom: 15px; /* 버튼을 화면 하단에서 살짝 위로 올림 */
-  left: 50%;
-  transform: translateX(-50%);
 }
 
 /* 반응형 디자인 */
-@media (max-width: 60px) {
+@media (max-width: 768px) {
   .container {
     padding: 10px;
   }
 
-  .title {
-    font-size: 18px;
-    margin-left: -5px;
-  }
-
-  .upload-box {
-    width: 75%;
-    height: 240px;
-  }
 
   .symptom {
     font-size: 14px;

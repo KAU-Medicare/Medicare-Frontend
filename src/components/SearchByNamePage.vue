@@ -11,8 +11,11 @@
 
     <div class="medicine-list">
       <div v-if="searchQuery && filteredMedicines.length > 0" class="medicine-grid">
-        <div v-for="medicine in filteredMedicines" :key="medicine.id" class="medicine-card">
-          <img src="" :alt="medicine.id" class="medicine-image" />
+        <div v-for="medicine in filteredMedicines"
+        :key="medicine.id"
+        class="medicine-card"
+        @click="goToMedInfo(medicine.id, medicine.itemName)">
+          <img src="@/assets/navBtnImg/nutriSuppBtn.png" :alt="medicine.id" class="medicine-image" />
           <div class="medicine-info">
             <h3>{{ medicine.itemName }}</h3>
             <p>{{ medicine.entpName }}</p>
@@ -61,7 +64,10 @@ export default {
       this.filteredMedicines = this.medicines.filter((medicine) =>
         medicine.itemName.includes(query)
       );
-    }
+    },
+    goToMedInfo(medicineId, medicineName) { // 라우팅 메서드 추가
+      this.$router.push({ path: '/medInfo', query: { id: medicineId, name: medicineName} });
+    },
   }
 };
 </script>
@@ -187,18 +193,18 @@ export default {
 }
 
 .medicine-info h3 {
-  font-size: 18px;
-  margin-top: 0;
+  font-size: 2vh;
+  margin: 0;
   color: #333; 
   flex: 1;
 }
 
 .medicine-info p {
-  font-size: 14px;
+  font-size: 1.5vh;
   display: flex;
   justify-content: flex-end; /* 수평 방향으로 오른쪽 정렬 */
   align-items: flex-end; /* 수직 방향으로 아래쪽 정렬 */
-  margin-bottom: 0;
+  margin: 0;
   color: #666; 
   flex: 1;
 }
