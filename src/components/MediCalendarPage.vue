@@ -13,18 +13,18 @@
       />
     </div>
     <h2 class="left-aligned">복약 정보</h2>
-    <section class="section">
+    <section class="section" v-if="filteredMediList.length">
       <MedicineCard
-        v-for="(item, index) in mediList"
+        v-for="(item, index) in filteredMediList"
         :key="index"
         :item="item"
         @check="handleCheck"
       />
     </section>
     <span class="bar"></span>
-    <section class="section">
+    <section class="section" v-if="filteredSuppList.length">
       <MedicineCard
-        v-for="(item, index) in suppList"
+        v-for="(item, index) in filteredSuppList"
         :key="index"
         :item="item"
         @check="handleCheck"
@@ -32,12 +32,13 @@
     </section>
     <span class="bar" style="border-bottom: 1px solid #333"></span>
     <h2 class="left-aligned">알레르기 정보</h2>
-    <NoneAllergyCard class="section"/>
+    <NoneAllergyCard class="section" @click="moveToAllergyRecordPage()" />
   </div>
 </template>
 
 <script>
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 import "v-calendar/dist/style.css";
 import MedicineCard from "@/components/cards/MedicineCard.vue";
 import NoneAllergyCard from "@/components/cards/NoneAllergyCard.vue";
@@ -59,55 +60,67 @@ export default {
 
   setup() {
     const selectedDate = ref(new Date());
-
-    const attributes = ref([
-      {
-        key: "today",
-        dates: new Date(),
-      },
-    ]);
+    const attributes = ref([{ key: "today", dates: new Date() }]);
+    const router = useRouter();
 
     const onDayClick = (day) => {
+      selectedDate.value = day.date;
       console.log(`선택된 날짜: ${day.date}`);
+    };
+
+    const moveToAllergyRecordPage = () => {
+      router.push({ path: "/allergyRecord" });
     };
 
     return {
       selectedDate,
       attributes,
       onDayClick,
+      moveToAllergyRecordPage, // 반환하여 template에서 사용할 수 있게 합니다
     };
   },
 
+  methods: {},
+
+  computed: {
+    filteredMediList() {
+      const days = ["일", "월", "화", "수", "목", "금", "토"];
+      const selectedDay = days[this.selectedDate.getDay()];
+
+      // 선택된 날짜의 요일에 맞는 항목만 필터링
+      return this.mediList.filter((item) => item.date.includes(selectedDay));
+    },
+    filteredSuppList() {
+      const days = ["일", "월", "화", "수", "목", "금", "토"];
+      const selectedDay = days[this.selectedDate.getDay()];
+
+      // 선택된 날짜의 요일에 맞는 항목만 필터링
+      return this.suppList.filter((item) => item.date.includes(selectedDay));
+    },
+  },
+
   mounted() {
-    fetch("/assets/mediList.json") // 약 리스트 가져오기
+    fetch("/assets/mediList.json")
       .then((response) => {
-        // 가져온 결과 보고
         if (!response.ok) {
-          // 못 가져왔으면
-          throw new Error("약 리스트를 가져올 수 없습니다"); // 에러 메세지 출력 후 중단
+          throw new Error("약 리스트를 가져올 수 없습니다");
         }
-        return response.json(); // 정상이면 응답을 json 형식으로 변환
+        return response.json();
       })
       .then((mediListData) => {
-        // 가져온 데이터 이름을 mediListData로 설정
-        this.mediList = mediListData; // mediList 변수에 넣어줌
-
-        return fetch("/assets/suppList.json"); // 이제 영양제 리스트 가져옴
+        this.mediList = mediListData;
+        return fetch("/assets/suppList.json");
       })
       .then((response) => {
-        // 가져온 결과 보고
         if (!response.ok) {
-          // 못 가져왔으면
-          throw new Error("영양제 리스트를 가져올 수 없습니다"); // 에러 메세지 출력 후 중단
+          throw new Error("영양제 리스트를 가져올 수 없습니다");
         }
-        return response.json(); // 정상이면 응답을 json 형식으로 변환
+        return response.json();
       })
       .then((suppListData) => {
-        // 가져온 데이터 이름을 suppListData로 설정
-        this.suppList = suppListData; // suppList 변수에 넣어줌
+        this.suppList = suppListData;
       })
       .catch((error) => {
-        // 오류 발생 시 위에서 throw한 에러메세지 출력
         console.error("오류 발생 : ", error);
       });
   },
@@ -137,6 +150,16 @@ export default {
   margin: auto;
   overflow-y: auto;
   max-height: 80%;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  position: absolute;
+  top: 40px;
+  left: 20px;
 }
 
 .calendar-container {

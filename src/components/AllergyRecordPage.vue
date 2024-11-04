@@ -2,7 +2,7 @@
   <div class="container">
     <div class="header">
       <button @click="goBack" class="back-button">←</button>
-      <span class="title">알레르기 정보 등록</span>
+      <h1 class="title">알레르기 정보 등록</h1>
     </div>
     
     <div class="upload-section">
@@ -71,7 +71,7 @@ export default {
   },
   methods: {
     goBack() {
-      this.$router.push('/home'); // 홈 화면으로 이동
+      this.$router.push('/mediCalendar'); // 홈 화면으로 이동
     },
     selectPhoto() {
       const fileInput = document.createElement('input');
@@ -117,7 +117,7 @@ export default {
       console.log("더미 데이터:", dummyData);
       
       alert("알레르기 정보가 등록되었습니다.");
-      this.$router.push('/home');
+      this.$router.push('/mediCalendar');
     }
   }
 }
@@ -223,11 +223,11 @@ export default {
 .register-button {
   background-color: orange;
   color: white;
-  padding: 18px 20px; /* 기본 세로 길이 증가 */
+  padding: 20px 0px; /* 기본 세로 길이 증가 */
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  margin-top: auto;
+  margin: auto 10px;
   width: 100%;
   max-width: 600px;
   position: fixed;
@@ -237,7 +237,7 @@ export default {
 }
 
 /* 반응형 디자인 */
-@media (max-width: 600px) {
+@media (max-width: 60px) {
   .container {
     padding: 10px;
   }

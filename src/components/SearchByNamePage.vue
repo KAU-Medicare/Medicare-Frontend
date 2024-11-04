@@ -12,10 +12,10 @@
     <div class="medicine-list">
       <div v-if="searchQuery && filteredMedicines.length > 0" class="medicine-grid">
         <div v-for="medicine in filteredMedicines" :key="medicine.id" class="medicine-card">
-          <img :src="medicine.img" alt="의약품 이미지" class="medicine-image" />
+          <img src="" :alt="medicine.id" class="medicine-image" />
           <div class="medicine-info">
-            <h3>{{ medicine.name }}</h3>
-            <p>{{ medicine.from }}</p>
+            <h3>{{ medicine.itemName }}</h3>
+            <p>{{ medicine.entpName }}</p>
           </div>
         </div>
       </div>
@@ -27,9 +27,7 @@
 </template>
 
 <script>
-import axios from "axios";
-import fs from "fs";
-import path from "path";
+import UserService from "@/services/UserService";
 
 export default {
   data() {
@@ -40,52 +38,28 @@ export default {
     };
   },
   async mounted() {
-    const filePath = path.join(__dirname, "public/assets/testMedList.json");
+     try {
+      // ID 1부터 20까지의 ID 배열 생성
+      const ids = Array.from({ length: 20 }, (_, i) => i + 1);
+      
+      // 모든 요청을 병렬로 실행
+      const requests = ids.map(id => UserService.getMedInfo(id));
 
-    // 1. 파일이 존재하고 데이터가 있으면 가져오기
-    if (fs.existsSync(filePath)) {
-      const fileData = fs.readFileSync(filePath, "utf8");
-      if (fileData && JSON.parse(fileData).length > 0) {
-        this.medicines = JSON.parse(fileData);
-        this.filteredMedicines = this.medicines;
-        return; // 파일에 데이터가 있으므로 종료
-      }
-    }
+      // 요청 결과를 모두 가져와서 mediList에 저장
+      const responses = await Promise.all(requests);
+      this.medicines = responses.map(response => response.data);
+      this.filteredMedicines = this.medicines;
 
-    // 2. 파일이 비어 있으면 서버에서 데이터 가져오기
-    try {
-      const batchSize = 100;
-      const totalItems = 11410;
-      const allData = [];
-
-      for (let i = 0; i < totalItems; i += batchSize) {
-        // 100개씩 ID 배열 생성
-        const ids = Array.from({ length: batchSize }, (_, index) => i + index + 1).filter(id => id <= totalItems);
-        
-        // 각각의 ID에 대해 요청 생성
-        const requests = ids.map(id => axios.get(`/api/medicines/${id}`));
-
-        // 현재 배치 요청 실행 및 응답 저장
-        const responses = await Promise.all(requests);
-        allData.push(...responses.map(response => response.data));
-      }
-
-      // 전체 데이터를 medicines와 filteredMedicines에 저장
-      this.medicines = allData;
-      this.filteredMedicines = allData;
-
-      // 가져온 데이터를 JSON 파일로 저장
-      fs.writeFileSync(filePath, JSON.stringify(allData, null, 2), "utf8");
-      console.log("testMedList.json에 데이터를 성공적으로 저장했습니다.");
+      console.log("데이터 로드 완료:", this.medicines);
     } catch (error) {
-      console.error("데이터를 가져오거나 저장하는 중 오류 발생:", error);
+      console.error("데이터를 가져오는 중 오류 발생:", error);
     }
   },
   methods: {
     filterMedicines() {
-      const query = this.searchQuery.toLowerCase();
-      this.filteredMedicines = this.medicines.filter(medicine =>
-        medicine.name.toLowerCase().includes(query)
+      const query = this.searchQuery; 
+      this.filteredMedicines = this.medicines.filter((medicine) =>
+        medicine.itemName.includes(query)
       );
     }
   }

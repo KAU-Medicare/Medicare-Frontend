@@ -22,14 +22,18 @@ export default {
   justify-content: space-between;
   align-items: center;
   background-color: #fff;
+  background-image: url('@/assets/allergyButtonBackground.png');
+  background-size: cover; /* 이미지가 카드 크기에 맞춰지도록 설정 */
+  background-position: center; /* 이미지의 중앙을 기준으로 정렬 */
   padding: 15px 0;
-
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   margin-bottom: 10px;
   outline: 1px solid #ddd;
-  transition: background-color 0.3s ease; /* 부드러운 배경 전환 */
+  transition: background-color 0.3s ease;
+  cursor: pointer;
 }
+
 
 .active {
   color: black;

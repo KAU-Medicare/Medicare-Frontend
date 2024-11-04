@@ -7,10 +7,10 @@
     </div>
 
     <!-- Medication Section -->
-    <section class="section">
+    <section class="section" v-if="todayMediList.length">
       <h2>오늘 먹을 약</h2>
       <MedicineCard
-        v-for="(item, index) in mediList"
+        v-for="(item, index) in todayMediList"
         :key="index"
         :item="item"
         @check="handleCheck"
@@ -18,10 +18,10 @@
     </section>
 
     <!-- Supplement Section -->
-    <section class="section">
+    <section class="section" v-if="todaySuppList.length">
       <h2>오늘 먹을 영양제</h2>
       <MedicineCard
-        v-for="(item, index) in suppList"
+        v-for="(item, index) in todaySuppList"
         :key="index"
         :item="item"
         @check="handleCheck"
@@ -41,6 +41,8 @@ export default {
       userId: 0, // 사용자의 아이디가 담길 변수
       mediList: [], // 약 json이 담길 변수
       suppList: [], // 영양제 json이 담길 변수
+      todayMediList: [], // 오늘 먹을 약 리스트
+      todaySuppList: [], // 오늘 먹을 영양제 리스트
       searchedUser: [], // id로 검색된 유저
     };
   },
@@ -62,46 +64,50 @@ export default {
         console.error("회원 정보 조회 에러:", error);
       }
     },
+
+    getTodayList() {
+      const days = ["일", "월", "화", "수", "목", "금", "토"];
+      const today = days[new Date().getDay()]; // 오늘의 요일
+
+      // 오늘 날짜에 맞는 약과 영양제 필터링
+      this.todayMediList = this.mediList.filter(item => item.date.includes(today));
+      this.todaySuppList = this.suppList.filter(item => item.date.includes(today));
+    },
   },
 
   mounted() {
     this.userId = Number(localStorage.getItem("userId")); // 로컬스토리지에 저장된 Id 받아오기
-    this.getUserInfo(); // Id를 통한 유저 정보 받아오기
 
-    fetch("/assets/mediList.json") // 약 리스트 가져오기
+    fetch("/assets/mediList.json")
       .then((response) => {
-        // 가져온 결과 보고
         if (!response.ok) {
-          // 못 가져왔으면
-          throw new Error("약 리스트를 가져올 수 없습니다"); // 에러 메세지 출력 후 중단
+          throw new Error("약 리스트를 가져올 수 없습니다");
         }
-        return response.json(); // 정상이면 응답을 json 형식으로 변환
+        return response.json();
       })
       .then((mediListData) => {
-        // 가져온 데이터 이름을 mediListData로 설정
-        this.mediList = mediListData; // mediList 변수에 넣어줌
-
-        return fetch("/assets/suppList.json"); // 이제 영양제 리스트 가져옴
+        this.mediList = mediListData;
+        return fetch("/assets/suppList.json");
       })
       .then((response) => {
-        // 가져온 결과 보고
         if (!response.ok) {
-          // 못 가져왔으면
-          throw new Error("영양제 리스트를 가져올 수 없습니다"); // 에러 메세지 출력 후 중단
+          throw new Error("영양제 리스트를 가져올 수 없습니다");
         }
-        return response.json(); // 정상이면 응답을 json 형식으로 변환
+        return response.json();
       })
       .then((suppListData) => {
-        // 가져온 데이터 이름을 suppListData로 설정
-        this.suppList = suppListData; // suppList 변수에 넣어줌
+        this.suppList = suppListData;
+
+        // 데이터 로드 후 오늘 날짜에 맞는 약과 영양제 필터링
+        this.getTodayList();
       })
       .catch((error) => {
-        // 오류 발생 시 위에서 throw한 에러메세지 출력
         console.error("오류 발생 : ", error);
       });
   },
 };
 </script>
+
 
 <style scoped>
 /* Layout */
