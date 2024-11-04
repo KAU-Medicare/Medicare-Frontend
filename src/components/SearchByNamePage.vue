@@ -156,7 +156,7 @@ export default {
   display: flex;
   flex-direction: row;
   align-items: center;
-  /* max-width: 400px;  */
+  max-width: 600px;
   padding: 15px; 
   background-color: #fff; 
   border-radius: 10px;
