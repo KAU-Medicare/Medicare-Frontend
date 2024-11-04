@@ -77,6 +77,7 @@ export default {
 
   mounted() {
     this.userId = Number(localStorage.getItem("userId")); // 로컬스토리지에 저장된 Id 받아오기
+    this.getUserInfo();
 
     fetch("/assets/mediList.json")
       .then((response) => {
