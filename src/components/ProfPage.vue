@@ -14,12 +14,15 @@
     <router-link to="/searchByCamera">
       <p>약 카메라 검색 페이지 이동</p>
     </router-link>
+    <router-link to="/allergyInfResult">
+      <p>알레르기 추론 결과 페이지 이동</p>
+    </router-link>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'NutriSuppPage'
+  name: 'ProfPage'
 };
 </script>
 
