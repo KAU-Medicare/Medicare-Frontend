@@ -13,7 +13,7 @@ import SearchByNamePage from '../components/SearchByNamePage.vue'
 import SearchByCameraPage from '../components/SearchByCameraPage.vue'
 import MediCalendarPage from '../components/MediCalendarPage.vue'
 import ChatBotPage from '../components/ChatBotPage.vue'
-import AllergyInfResurtPage from '../components/AllergyInfResurtPage.vue'
+import AllergyInfResultPage from '../components/AllergyInfResultPage.vue'
 
 const routes = [
   { path: '/login', name: 'LoginPage', component: LoginPage, meta: { page: 0, state: "", requiresAuth: false } },
@@ -30,7 +30,7 @@ const routes = [
   { path: '/searchByCamera', name: 'SearchByCameraPage', component: SearchByCameraPage, meta: { page: -1, state: "", requiresAuth: true } },
   { path: '/mediCalendar', name: 'MediCalendarPage', component: MediCalendarPage, meta: { page: 2, state: "BotNav", requiresAuth: true } },
   { path: '/nutriSupp', name: 'NutriSuppPage', component: NutriSuppPage, meta: { page: -1, state: "BotNav", requiresAuth: true } },
-  { path: '/allergyInfResurt', name: 'AllergyInfResurtPage', component: AllergyInfResurtPage, meta: { page: 4, state: "BotNav", requiresAuth: true } },
+  { path: '/allergyInfResult', name: 'AllergyInfResultPage', component: AllergyInfResultPage, meta: { page: 4, state: "BotNav", requiresAuth: true } },
   
 ];
 
