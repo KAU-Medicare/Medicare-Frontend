@@ -39,9 +39,6 @@
     "parserOptions": {
       "parser": "@babel/eslint-parser"
     },
-    "globals": {
-      "BarcodeDetector": "readonly"
-    },
     "rules": {}
   },
   "browserslist": [
