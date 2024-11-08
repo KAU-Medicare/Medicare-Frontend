@@ -1,101 +1,69 @@
 <template>
   <div>
-    <video ref="video" autoplay @click="refocus"></video>
-    <div v-if="barcodeId">인식된 바코드 ID: {{ barcodeId }}</div>
+    <button @click="startScanner" v-if="!isScanning">바코드 스캔 시작</button>
+    <button @click="stopScanner" v-if="isScanning">스캔 중지</button>
+    <div id="qr-reader" style="width: 300px; height: 300px;"></div>
+    <div v-if="barcodeResult">
+      <p>인식된 바코드: {{ barcodeResult }}</p>
+    </div>
   </div>
 </template>
 
 <script>
-import { BrowserMultiFormatReader } from '@zxing/library';
+import { Html5Qrcode } from "html5-qrcode";
 
 export default {
   data() {
     return {
-      barcodeId: null,
-      codeReader: null,
-      isScanning: false, // 스캔 중인지 여부를 추적하는 변수
+      barcodeResult: null,
+      html5QrCode: null,
+      isScanning: false,
     };
   },
   methods: {
     async startScanner() {
-      this.codeReader = new BrowserMultiFormatReader();
-      await this.setupCamera(); // 카메라 초기화
-      this.isScanning = true;
-      this.scanBarcode();
-    },
-    async setupCamera() {
+      this.html5QrCode = new Html5Qrcode("qr-reader");
+      const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+      const cameraConfig = { facingMode: "environment" }; // 후면 카메라 사용
+
       try {
-        const videoInputDevices = await this.codeReader.listVideoInputDevices();
-
-        // 후면 카메라를 선택
-        const selectedDeviceId = videoInputDevices.find(device =>
-          device.label.toLowerCase().includes('back')
-        )?.deviceId || videoInputDevices[0].deviceId;
-
-        // 초점 설정 추가 (사용 가능한 경우)
-        const constraints = {
-          video: {
-            deviceId: selectedDeviceId,
-            focusMode: "continuous", // 'continuous' 또는 'auto' 초점 설정
+        await this.html5QrCode.start(
+          cameraConfig,
+          config,
+          (decodedText) => {
+            this.barcodeResult = decodedText;
+            console.log("인식된 바코드:", decodedText);
+            this.stopScanner(); // 바코드 인식 후 스캔 중지
+          },
+          (errorMessage) => {
+            console.warn("인식 실패:", errorMessage);
           }
-        };
-
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        this.$refs.video.srcObject = stream;
+        );
+        this.isScanning = true;
       } catch (error) {
-        console.error("카메라를 시작할 수 없습니다:", error);
-      }
-    },
-    async refocus() {
-      this.stopScanner(); // 현재 카메라 스트림 중지
-      await this.setupCamera(); // 카메라 재시작으로 초점 맞추기
-    },
-    async scanBarcode() {
-      if (!this.isScanning) return;
-
-      try {
-        const result = await this.codeReader.decodeOnceFromVideoDevice(this.$refs.video.srcObject);
-        if (result) {
-          this.barcodeId = result.text;
-          console.log("인식된 바코드:", this.barcodeId);
-          this.isScanning = false; // 바코드가 인식되면 스캔 중지
-        }
-      } catch (err) {
-        console.error("바코드 인식 오류:", err.message);
-      }
-
-      // 0.5초 후 다시 스캔 시도
-      if (this.isScanning) {
-        setTimeout(() => {
-          this.scanBarcode();
-        }, 500);
+        console.error("스캐너를 시작할 수 없습니다:", error);
       }
     },
     stopScanner() {
-      if (this.codeReader) {
-        this.codeReader.reset();
-      }
-      this.isScanning = false;
-
-      const stream = this.$refs.video.srcObject;
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop()); // 카메라 스트림 중지
+      if (this.html5QrCode) {
+        this.html5QrCode.stop().then(() => {
+          this.isScanning = false;
+          this.html5QrCode.clear();
+        }).catch((err) => {
+          console.error("스캐너를 중지하는 중 오류가 발생했습니다:", err);
+        });
       }
     }
   },
-  mounted() {
-    this.startScanner();
-  },
   beforeUnmount() {
-    this.stopScanner();
+    this.stopScanner(); // 컴포넌트가 사라질 때 스캐너 중지
   }
 };
 </script>
 
 <style scoped>
-video {
-  width: 100%;
-  max-height: 400px;
+#qr-reader {
+  margin-top: 10px;
   border: 1px solid #ddd;
 }
 </style>
