@@ -1,66 +1,69 @@
 <template>
   <div>
-    <div id="interactive" class="viewport"></div>
-    <div v-if="barcodeId">인식된 ID: {{ barcodeId }}</div>
+    <video ref="video" autoplay></video>
+    <div v-if="barcodeId">인식된 바코드 ID: {{ barcodeId }}</div>
   </div>
 </template>
 
 <script>
-import Quagga from 'quagga';
+import { BrowserMultiFormatReader } from '@zxing/library';
 
 export default {
   data() {
     return {
       barcodeId: null,
+      codeReader: null
     };
   },
   methods: {
-    startScanner() {
-      Quagga.init(
-        {
-          inputStream: {
-            type: 'LiveStream',
-            target: document.querySelector('#interactive'), // 카메라 피드가 표시될 요소
-            constraints: {
-              width: 640,
-              height: 480,
-              facingMode: 'environment' // 후면 카메라 사용
-            },
-          },
-          decoder: {
-            readers: ['ean_reader', 'code_128_reader'] // 사용할 바코드 형식
-          }
-        },
-        (err) => {
-          if (err) {
-            console.error(err);
-            return;
-          }
-          Quagga.start();
-        }
-      );
+    async startScanner() {
+      this.codeReader = new BrowserMultiFormatReader();
+      
+      try {
+        const videoInputDevices = await this.codeReader.listVideoInputDevices();
 
-      // 바코드가 감지될 때 호출되는 이벤트 리스너
-      Quagga.onDetected((data) => {
-        this.barcodeId = data.codeResult.code; // 바코드 값을 설정
-        Quagga.stop(); // 바코드가 감지되면 스캔 중지
-      });
+        // 후면 카메라를 찾기 위한 장치 선택
+        const selectedDeviceId = videoInputDevices.find(device =>
+          device.label.toLowerCase().includes('back')
+        )?.deviceId || videoInputDevices[0].deviceId; // 후면 카메라가 없으면 첫 번째 카메라 선택
+
+        this.codeReader.decodeFromVideoDevice(
+          selectedDeviceId,
+          this.$refs.video,
+          (result, err) => {
+            if (result) {
+              this.barcodeId = result.text;
+              console.log("인식된 바코드:", this.barcodeId);
+              this.stopScanner(); // 바코드 인식 후 스캔 중지
+            }
+            if (err) {
+              console.error(err); // 오류 메시지 출력
+            }
+          }
+        );
+      } catch (error) {
+        console.error("카메라를 시작할 수 없습니다:", error);
+      }
+    },
+    stopScanner() {
+      if (this.codeReader) {
+        this.codeReader.reset();
+      }
     }
   },
   mounted() {
     this.startScanner();
   },
   beforeUnmount() {
-    Quagga.stop(); // 컴포넌트가 제거될 때 스캔 중지
+    this.stopScanner();
   }
 };
 </script>
 
 <style scoped>
-.viewport {
+video {
   width: 100%;
-  max-width: 640px;
-  height: auto;
+  max-height: 400px;
   border: 1px solid #ddd;
 }
 </style>
