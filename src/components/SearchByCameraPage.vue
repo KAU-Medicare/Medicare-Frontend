@@ -1,7 +1,10 @@
 <template>
   <div>
-    <video ref="video" autoplay @click="refocus"></video>
-    <div v-if="barcodeId">인식된 바코드 ID: {{ barcodeId }}</div>
+    <input type="file" accept="image/*" capture="environment" @change="onFileSelected">
+    <div v-if="imageUrl">
+      <img :src="imageUrl" alt="Captured image">
+      <p v-if="barcodeResult">인식된 바코드: {{ barcodeResult }}</p>
+    </div>
   </div>
 </template>
 
@@ -11,91 +14,56 @@ import { BrowserMultiFormatReader } from '@zxing/library';
 export default {
   data() {
     return {
-      barcodeId: null,
-      codeReader: null,
-      isScanning: false, // 스캔 중인지 여부를 추적하는 변수
+      imageUrl: null,
+      barcodeResult: null,
+      codeReader: new BrowserMultiFormatReader(), // 인스턴스 생성
     };
   },
   methods: {
-    async startScanner() {
-      this.codeReader = new BrowserMultiFormatReader();
-      await this.setupCamera(); // 카메라 초기화
-      this.isScanning = true;
-      this.scanBarcode();
-    },
-    async setupCamera() {
-      try {
-        const videoInputDevices = await this.codeReader.listVideoInputDevices();
+    onFileSelected(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const imageUrl = URL.createObjectURL(file);
+        const img = new Image();
+        img.src = imageUrl;
 
-        // 후면 카메라를 선택
-        const selectedDeviceId = videoInputDevices.find(device =>
-          device.label.toLowerCase().includes('back')
-        )?.deviceId || videoInputDevices[0].deviceId;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
 
-        // 초점 설정 추가 (사용 가능한 경우)
-        const constraints = {
-          video: {
-            deviceId: selectedDeviceId,
-            focusMode: "continuous", // 'continuous' 또는 'auto' 초점 설정
-          }
+          // 이미지 전처리: 밝기와 대비 조정
+          ctx.filter = 'contrast(150%) brightness(120%)';
+          ctx.drawImage(img, 0, 0);
+
+          // 전처리된 이미지를 미리보기로 설정
+          this.imageUrl = canvas.toDataURL();
+
+          // 바코드 인식 시도
+          this.decodeBarcode(canvas);
         };
-
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        this.$refs.video.srcObject = stream;
-      } catch (error) {
-        console.error("카메라를 시작할 수 없습니다:", error);
       }
     },
-    async refocus() {
-      this.stopScanner(); // 현재 카메라 스트림 중지
-      await this.setupCamera(); // 카메라 재시작으로 초점 맞추기
-    },
-    async scanBarcode() {
-      if (!this.isScanning) return;
-
+    async decodeBarcode(canvas) {
       try {
-        const result = await this.codeReader.decodeOnceFromVideoDevice(this.$refs.video.srcObject);
-        if (result) {
-          this.barcodeId = result.text;
-          console.log("인식된 바코드:", this.barcodeId);
-          this.isScanning = false; // 바코드가 인식되면 스캔 중지
-        }
-      } catch (err) {
-        console.error("바코드 인식 오류:", err.message);
-      }
-
-      // 0.5초 후 다시 스캔 시도
-      if (this.isScanning) {
-        setTimeout(() => {
-          this.scanBarcode();
-        }, 500);
-      }
-    },
-    stopScanner() {
-      if (this.codeReader) {
-        this.codeReader.reset();
-      }
-      this.isScanning = false;
-
-      const stream = this.$refs.video.srcObject;
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop()); // 카메라 스트림 중지
+        const result = await this.codeReader.decodeFromImage(canvas); // 전처리된 canvas 전달
+        this.barcodeResult = result.text; // 바코드 인식 결과 저장
+        console.log("인식된 바코드:", this.barcodeResult);
+      } catch (error) {
+        console.error("바코드를 인식할 수 없습니다:", error.message);
+        this.barcodeResult = "바코드를 인식할 수 없습니다.";
       }
     }
   },
-  mounted() {
-    this.startScanner();
-  },
-  beforeUnmount() {
-    this.stopScanner();
-  }
 };
 </script>
 
 <style scoped>
-video {
+img {
   width: 100%;
-  max-height: 400px;
-  border: 1px solid #ddd;
+  max-width: 400px;
+  margin-top: 10px;
 }
 </style>
