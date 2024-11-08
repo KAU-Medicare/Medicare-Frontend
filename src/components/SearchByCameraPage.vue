@@ -1,6 +1,6 @@
 <template>
   <div>
-    <video ref="video" autoplay></video>
+    <video ref="video" autoplay @click="refocus"></video>
     <div v-if="barcodeId">인식된 바코드 ID: {{ barcodeId }}</div>
   </div>
 </template>
@@ -19,7 +19,11 @@ export default {
   methods: {
     async startScanner() {
       this.codeReader = new BrowserMultiFormatReader();
-
+      await this.setupCamera(); // 카메라 초기화
+      this.isScanning = true;
+      this.scanBarcode();
+    },
+    async setupCamera() {
       try {
         const videoInputDevices = await this.codeReader.listVideoInputDevices();
 
@@ -38,13 +42,13 @@ export default {
 
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
         this.$refs.video.srcObject = stream;
-
-        // 0.5초마다 바코드 인식 시도
-        this.isScanning = true;
-        this.scanBarcode();
       } catch (error) {
         console.error("카메라를 시작할 수 없습니다:", error);
       }
+    },
+    async refocus() {
+      this.stopScanner(); // 현재 카메라 스트림 중지
+      await this.setupCamera(); // 카메라 재시작으로 초점 맞추기
     },
     async scanBarcode() {
       if (!this.isScanning) return;
