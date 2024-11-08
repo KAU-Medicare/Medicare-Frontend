@@ -92,7 +92,7 @@
         } else {
           try {
             console.log(response);
-            const result = await axios.post('http://backend:8081/chat', { message: response });
+            const result = await axios.post('api/chat', { message: response });
             const cleanedResponse = result.data.response
               .replace(/^{"response":"/, '') // 시작 부분의 {"response": 제거
               .replace(/\\"/g, '"') // \" 를 " 로 변경
