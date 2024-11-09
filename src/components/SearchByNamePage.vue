@@ -107,6 +107,7 @@ export default {
 
 .search-bar {
   width: 100%;
+  max-width: 600px;
   display: flex; 
   justify-content: center;
   padding-bottom: 2.5vh;
@@ -116,12 +117,11 @@ export default {
   z-index: 1;
   background: white;
   border-bottom: 2px solid #ccc;
-  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1);
 }
 
 .search-bar input {
   width: 70%; 
-  max-width: 400px; 
+  max-width: 600px; 
   padding: 12px; 
   font-size: 16px;
   border-radius: 8px;
@@ -171,7 +171,7 @@ export default {
   display: flex;
   flex-direction: row;
   align-items: center;
-  max-width: 600px;
+  max-width: 550px;
   padding: 15px; 
   background-color: #fff; 
   border-radius: 10px;
