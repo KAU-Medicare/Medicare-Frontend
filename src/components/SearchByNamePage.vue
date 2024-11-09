@@ -30,6 +30,7 @@
 </template>
 
 <script>
+import Fuse from 'fuse.js';
 import UserService from "@/services/UserService";
 
 export default {
@@ -37,14 +38,15 @@ export default {
     return {
       searchQuery: '',
       medicines: [],
-      filteredMedicines: []
+      filteredMedicines: [],
+      fuse: null, 
     };
   },
   async mounted() {
-     try {
+    try {
       // ID 1부터 20까지의 ID 배열 생성
       const ids = Array.from({ length: 20 }, (_, i) => i + 1);
-      
+
       // 모든 요청을 병렬로 실행
       const requests = ids.map(id => UserService.getMedInfo(id));
 
@@ -53,6 +55,11 @@ export default {
       this.medicines = responses.map(response => response.data);
       this.filteredMedicines = this.medicines;
 
+      this.fuse = new Fuse(this.medicines, {
+        keys: ['itemName'], 
+        threshold: 0.4 ,
+      });
+
       console.log("데이터 로드 완료:", this.medicines);
     } catch (error) {
       console.error("데이터를 가져오는 중 오류 발생:", error);
@@ -60,15 +67,23 @@ export default {
   },
   methods: {
     filterMedicines() {
-      const query = this.searchQuery; 
-      this.filteredMedicines = this.medicines.filter((medicine) =>
-        medicine.itemName.includes(query)
-      );
+      const query = this.searchQuery;
+      if (!this.fuse) {
+        console.error("Fuse 인스턴스가 초기화되지 않았습니다.");
+        this.filteredMedicines = [];
+        return;
+      }
+      if (query) {
+        const results = this.fuse.search(query);
+        this.filteredMedicines = results.map(result => result.item); 
+      } else {
+        this.filteredMedicines = this.medicines;
+      }
     },
     goToMedInfo(medicineId, medicineName) { // 라우팅 메서드 추가
-      this.$router.push({ path: '/medInfo', query: { id: medicineId, name: medicineName} });
+      this.$router.push({ path: '/medInfo', query: { id: medicineId, name: medicineName } });
     },
-  }
+  },
 };
 </script>
 
