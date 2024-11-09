@@ -97,7 +97,6 @@
               .replace(/^{"response":"/, '') // 시작 부분의 {"response": 제거
               .replace(/\\"/g, '"') // \" 를 " 로 변경
               .replace(/\\n/g, '\n') // \n을 실제 줄바꿈으로 변환
-              .replace(/...$/s, '') // 마지막 세 문자 제거 ("}를 포함하여)
               .replace(/\*\*(.*?)\*\*/g, '$1') // **텍스트** 형태의 굵은 텍스트 표기 제거
               .trim(); // 앞뒤 공백 제거
             this.conversation.push({
