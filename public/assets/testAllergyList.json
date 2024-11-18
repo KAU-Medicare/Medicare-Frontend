@@ -1,12 +1,30 @@
 [
     {
-        "Date": "2023-09-23",
+        "date": "2023-09-23",
+        "startTime": "16:00",
+        "endTime" : "18:00",
         "symptoms": ["고열", "발진", "호흡곤란"],
         "img": "/assets/1.jpg"
     },
     {
-        "Date": "2023-09-24",
+        "date": "2023-09-24",
+        "startTime": "16:00",
+        "endTime" : "18:00",
         "symptoms": ["발진", "호흡곤란"],
+        "img": "/assets/2.jpg"
+    },
+    {
+        "date": "2023-09-25",
+        "startTime": "9:00",
+        "endTime" : "12:00",
+        "symptoms": ["고열"],
+        "img": "/assets/1.jpg"
+    },
+    {
+        "date": "2023-09-26",
+        "startTime": "20:00",
+        "endTime" : "22:00",
+        "symptoms": ["호흡곤란"],
         "img": "/assets/2.jpg"
     }
 ]
