@@ -5,8 +5,8 @@
       <img src="@/assets/medicareLogo.png" alt="medicare logo" class="logo" />
     </div>
 
-    <div class="welcome-msg">
-      <span class="name">{{ userName }}</span>
+    <div class="welcome-msg" v-if="searchedUser.nickname">
+      <span class="name">{{ searchedUser.nickname }}</span>
       <span>님, 환영합니다!</span>
     </div>
 
@@ -15,17 +15,34 @@
 </template>
 
 <script>
+import UserService from "@/services/UserService";
+
 export default {
   name: "UserInfoPage",
   data() {
     return {
-      userName: "홍길동", 
+      userId: 0, // 사용자의 아이디가 담길 변수
+      searchedUser: {}, // id로 검색된 유저 객체
     };
   },
   methods: {
     logout() {
-      this.$router.push({ name: "HomePage" });
+      localStorage.removeItem("userId");
+      this.$router.push({ name: "LoginPage" });
     },
+    async getUserInfo() {
+      try {
+        const response = await UserService.getUserById(this.userId);
+        this.searchedUser = response.data;
+      } catch (error) {
+        console.error("회원 정보 조회 에러:", error);
+      }
+    },
+  },
+
+  mounted() {
+    this.userId = Number(localStorage.getItem("userId")); // 로컬스토리지에 저장된 Id 받아오기
+    this.getUserInfo();
   },
 };
 </script>
