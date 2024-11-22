@@ -1,23 +1,27 @@
-<!-- components/MedicineCard.vue -->
 <template>
   <div class="card">
     <div class="infos">
+      <!-- 약/영양제 이름 -->
       <div class="name-dates">
-        <span class="names">{{ item.name }}</span>
+        <span class="names">{{ item.itemName }}</span>
+        <!-- 복용 요일 표시 -->
         <div class="weekdays">
           <span
             v-for="(day, index) in ['일', '월', '화', '수', '목', '금', '토']"
             :key="index"
-            :class="{ active: item.date.includes(day) }"
+            :class="{ active: item.takingDays.includes(day) }"
           >
             {{ day + " " }}
           </span>
         </div>
       </div>
+      <!-- 복용 시간 및 알람 상태 -->
       <div class="name-dates">
-        <span class="times">{{ item.time }}</span>
-        <span :class="{ active: item.isAlert, inactive: !item.isAlert }">
-        알람 {{ item.isAlert ? "켜짐" : "꺼짐" }}
+        <span class="times">
+          {{ formatTime(item.takingTime) }}
+        </span>
+        <span :class="{ active: item.useNotification, inactive: !item.useNotification }">
+          알람 {{ item.useNotification ? "켜짐" : "꺼짐" }}
         </span>
       </div>
     </div>
@@ -31,6 +35,14 @@ export default {
     item: {
       type: Object,
       required: true,
+    },
+  },
+  methods: {
+    // 시간 포맷 변경: {hour, minute, second} => "HH:MM:SS"
+    formatTime(time) {
+      if (!time) return "시간 미정";
+      const { hour, minute, second } = time;
+      return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}:${String(second).padStart(2, "0")}`;
     },
   },
 };

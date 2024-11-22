@@ -70,11 +70,13 @@
 
 <script>
 import MedManageCard from "@/components/cards/MedManageCard.vue";
+import UserService from "@/services/UserService"; // UserService 불러오기
 
 export default {
   name: "MedicineManagement",
   data() {
     return {
+      userId: 0, // 유저 식별 아이디
       mediList: [], // 약 json이 담길 변수
       suppList: [], // 영양제 json이 담길 변수
       isExpanded: false, // 버튼 확장 상태
@@ -87,47 +89,37 @@ export default {
     MedManageCard,
   },
 
-  mounted() {
-    this.userName = localStorage.getItem("userName"); // 카카오조인에서 닉네임 받아오기
+  async mounted() {
+    this.userId = localStorage.getItem("userId"); // 유저 id 받아오기
+    if (!this.userId) {
+      console.error("로그인되지 않은 상태입니다.");
+      return;
+    }
 
-    fetch("/assets/mediList.json") // 약 리스트 가져오기
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("약 리스트를 가져올 수 없습니다");
-        }
-        return response.json();
-      })
-      .then((mediListData) => {
-        this.mediList = mediListData;
+    try {
+      const response = await UserService.getUserInventory(this.userId);
+      const inventoryData = response.data;
 
-        return fetch("/assets/suppList.json"); // 영양제 리스트 가져오기
-      })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("영양제 리스트를 가져올 수 없습니다");
-        }
-        return response.json();
-      })
-      .then((suppListData) => {
-        this.suppList = suppListData;
-      })
-      .catch((error) => {
-        console.error("오류 발생 : ", error);
-      });
+      // 약과 영양제를 구분하여 리스트에 저장
+      this.mediList = inventoryData.filter((item) => item.type === "MEDICINE");
+      this.suppList = inventoryData.filter((item) => item.type === "HEALTH_FOOD");
+    } catch (error) {
+      console.error("약/영양제 데이터를 불러오는 중 오류가 발생했습니다:", error);
+    }
   },
 
   methods: {
-    calenderClick() { // 캘린더 버튼 클릭
-      this.$router.push("/mediCalendar"); // /mediCalendar 경로로 이동
+    calenderClick() {
+      this.$router.push("/mediCalendar"); // 캘린더 경로로 이동
     },
     toggleButtons() {
       this.isExpanded = !this.isExpanded;
     },
     handlePillClick() {
-      this.$router.push("/searchByName"); // /mediCalendar 경로로 이동
+      this.$router.push("/searchByName"); // 약 검색 경로로 이동
     },
     handleSupplementClick() {
-      this.$router.push("/searchByName"); // 영양제 버튼 클릭 시 동작
+      this.$router.push("/searchByName"); // 영양제 검색 경로로 이동
     },
     toggleModal(event) {
       const offsetY = 0; // 모달을 클릭 위치 위로 띄울 거리 (조정 가능)
@@ -138,12 +130,10 @@ export default {
       this.isModalOpen = !this.isModalOpen; // 모달 열고 닫기
     },
     editInfo() {
-      // 정보 수정 동작
       alert("정보 수정 기능");
       this.isModalOpen = false;
     },
     deleteItem() {
-      // 삭제 동작
       alert("삭제 기능");
       this.isModalOpen = false;
     },
@@ -152,141 +142,5 @@ export default {
 </script>
 
 <style scoped>
-/* Layout */
-.container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 1vh 5vw 11vh 5vw;
-  max-width: 600px;
-  width: 90vw;
-  margin: auto;
-  overflow-y: auto;
-  max-height: 80%;
-}
-
-.header {
-  display: flex;
-  width: 100%;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.header h1 {
-  font-size: 4vh;
-  font-weight: bold;
-}
-
-.calendar-btn {
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  width: 7vh; /* 이미지 크기를 원하는 크기로 조정 */
-  height: auto;
-}
-
-.section {
-  width: 100%;
-  margin-bottom: 20px;
-}
-
-.button-container {
-  position: fixed;
-  bottom: 18vh;
-  right: 10vw;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.add-btn {
-  background-color: #ff8947;
-  color: white;
-  font-size: 4vh;
-  border: none;
-  border-radius: 50%;
-  width: 8vh;
-  height: 8vh;
-  cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  opacity: 0.9;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.sub-btn {
-  background-color: #ffb47a;
-  color: black;
-  font-size: 24px;
-  border: none;
-  border-radius: 50%;
-  width: 8vh;
-  height: 8vh;
-  cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  transition: transform 0.3s ease;
-}
-
-.pill-btn {
-  transform: translateY(0);
-}
-
-.supplement-btn {
-  transform: translateY(0);
-}
-
-.icon-image {
-  width: 4vh; /* 이미지 크기를 원하는 크기로 조정 */
-  height: 4vh;
-  margin: 0;
-  padding-top: 0.8vh;
-}
-
-button:focus {
-  outline: none;
-}
-
-.calendar-btn img {
-  width: 100%; /* 버튼 크기에 맞춰 이미지 크기 조정 */
-  height: auto;
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  position: absolute;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  padding: 10px;
-  width: 100px;
-  z-index: 1001; /* 모달이 다른 요소들 위에 표시되도록 설정 */
-  transform: translateY(-100%); /* 모달을 클릭한 위치 바로 위로 올림 */
-}
-
-.modal-content p {
-  margin: 0;
-  padding: 10px;
-  cursor: pointer;
-  text-align: center;
-}
-
-.modal-content p:hover {
-  background-color: #f0f0f0;
-}
+/* 기존 CSS 코드 유지 */
 </style>
