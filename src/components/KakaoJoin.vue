@@ -36,6 +36,7 @@ export default {
         .then((res) => {
           console.log("Kakao login response:", res); // 로그인 확인
           localStorage.setItem("userId", res.data.id); // 로컬 스토리지에 id 저장
+          console.log("Kakao Id:", res.data.id); // 로그인 확인
           localStorage.setItem("userName", res.data.nickname); // 로컬 스토리지에 이름 저장
           router.push({ path: "/" }); // 홈으로 이동
         })
