@@ -79,14 +79,15 @@
 
 <script>
 import UserService from "@/services/UserService";
+
 export default {
   data() {
     return {
       kakaoIdString: "badId", // 카카오 아이디 스트링
       medName: "",
       editingName: false,
-      days: ["일", "월", "화", "수", "목", "금", "토"],
-      selectedDays: [],
+      days: ["일", "월", "화", "수", "목", "금", "토"], // 한글 요일
+      selectedDays: [], // 선택된 요일
       alertEnabled: false,
       hour: 12,
       minute: "00",
@@ -109,6 +110,19 @@ export default {
     goBack() {
       this.$router.push("/searchByName");
     },
+    // 한글 요일 -> 영어 요일 변환 함수
+    convertDaysToEnglish(days) {
+      const dayMap = {
+        일: "SUNDAY",
+        월: "MONDAY",
+        화: "TUESDAY",
+        수: "WEDNESDAY",
+        목: "THURSDAY",
+        금: "FRIDAY",
+        토: "SATURDAY",
+      };
+      return days.map((day) => dayMap[day]);
+    },
     async register() {
       try {
         const jsonData = {
@@ -129,7 +143,7 @@ export default {
             second: 0,
             nano: 0,
           },
-          takingDays: [...this.selectedDays], // 선택된 요일 (한글)
+          takingDays: this.convertDaysToEnglish(this.selectedDays), // 선택된 요일을 영어로 변환
         };
 
         console.log(jsonData);
@@ -149,6 +163,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 .outer-container {
