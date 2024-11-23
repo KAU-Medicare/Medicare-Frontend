@@ -47,6 +47,18 @@ export default {
   font-style: normal;
 }
 
+input[type="text"] {
+  border: none; /* 외곽선을 제거 */
+  outline: none; /* 포커스 시 기본 외곽선 제거 */
+  background-color: transparent; /* 배경색을 투명하게 설정 */
+  color: #333; /* 텍스트 색상 설정 */
+  font-family: "GwangYang", sans-serif; /* 폰트 적용 */
+  width: 100%; /* 너비를 100%로 설정 */
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box; /* 패딩 포함한 박스 크기 */
+}
+
 #app {
   display: flex;
   flex-direction: column;

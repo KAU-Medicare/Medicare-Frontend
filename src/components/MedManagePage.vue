@@ -142,5 +142,141 @@ export default {
 </script>
 
 <style scoped>
-/* 기존 CSS 코드 유지 */
+/* Layout */
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1vh 5vw 11vh 5vw;
+  max-width: 600px;
+  width: 90vw;
+  margin: auto;
+  overflow-y: auto;
+  max-height: 80%;
+}
+
+.header {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h1 {
+  font-size: 4vh;
+  font-weight: bold;
+}
+
+.calendar-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  width: 7vh; /* 이미지 크기를 원하는 크기로 조정 */
+  height: auto;
+}
+
+.section {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.button-container {
+  position: fixed;
+  bottom: 18vh;
+  right: 10vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.add-btn {
+  background-color: #ff8947;
+  color: white;
+  font-size: 4vh;
+  border: none;
+  border-radius: 50%;
+  width: 8vh;
+  height: 8vh;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  opacity: 0.9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sub-btn {
+  background-color: #ffb47a;
+  color: black;
+  font-size: 24px;
+  border: none;
+  border-radius: 50%;
+  width: 8vh;
+  height: 8vh;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.pill-btn {
+  transform: translateY(0);
+}
+
+.supplement-btn {
+  transform: translateY(0);
+}
+
+.icon-image {
+  width: 4vh; /* 이미지 크기를 원하는 크기로 조정 */
+  height: 4vh;
+  margin: 0;
+  padding-top: 0.8vh;
+}
+
+button:focus {
+  outline: none;
+}
+
+.calendar-btn img {
+  width: 100%; /* 버튼 크기에 맞춰 이미지 크기 조정 */
+  height: auto;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  position: absolute;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  padding: 10px;
+  width: 100px;
+  z-index: 1001; /* 모달이 다른 요소들 위에 표시되도록 설정 */
+  transform: translateY(-100%); /* 모달을 클릭한 위치 바로 위로 올림 */
+}
+
+.modal-content p {
+  margin: 0;
+  padding: 10px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.modal-content p:hover {
+  background-color: #f0f0f0;
+}
 </style>

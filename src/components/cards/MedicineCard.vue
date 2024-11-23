@@ -1,4 +1,3 @@
-<!-- components/MedicineCard.vue -->
 <template>
   <div 
     class="card" 
@@ -7,10 +6,13 @@
   >
     <div class="info">
       <div class="name-dose">
-        <span class="name">{{ item.name }}</span>
-        <span class="dose">{{ item.singleDose }}{{ item.type }}</span>
+        <span class="name">{{ item.nickname || item.itemName }}</span>
+        <span class="dose">{{ item.capsuleCount }}캡슐</span>
       </div>
-      <span class="time">{{ item.time }}</span>
+      <div class="time-days">
+        <span class="time">{{ formattedTime }}</span>
+        <span class="days">{{ formattedDays }}</span>
+      </div>
     </div>
     <div class="actions">
       <button class="check-btn" @click.stop="toggleCheck">
@@ -33,6 +35,17 @@ export default {
     return {
       isChecked: false, // 체크 상태 관리
     };
+  },
+  computed: {
+    formattedTime() {
+      const { hour, minute } = this.item.takingTime || { hour: 0, minute: 0 };
+      const ampm = hour >= 12 ? "PM" : "AM";
+      const adjustedHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+      return `${ampm} ${adjustedHour}:${minute < 10 ? "0" : ""}${minute}`;
+    },
+    formattedDays() {
+      return this.item.takingDays.join(", ");
+    },
   },
   methods: {
     toggleCheck() {
@@ -64,9 +77,20 @@ export default {
   padding-right: 10px;
 }
 
-.dose,
-.time {
+.dose {
   font-size: 2vh;
+  color: #666;
+}
+
+.time-days {
+  display: flex;
+  flex-direction: column;
+}
+
+.time,
+.days {
+  font-size: 2vh;
+  color: #333;
 }
 
 h2 {
@@ -83,6 +107,7 @@ h2 {
 .actions {
   display: flex;
 }
+
 .card.checked {
   background-color: #29d45b; /* 체크된 상태의 배경색 */
 }
@@ -90,7 +115,6 @@ h2 {
 .name-dose {
   display: flex;
 }
-
 
 .check-btn {
   background: none;

@@ -39,8 +39,6 @@ export default {
   data() {
     return {
       userId: 0, // 사용자의 아이디가 담길 변수
-      mediList: [], // 약 json이 담길 변수
-      suppList: [], // 영양제 json이 담길 변수
       todayMediList: [], // 오늘 먹을 약 리스트
       todaySuppList: [], // 오늘 먹을 영양제 리스트
       searchedUser: {}, // id로 검색된 유저 객체
@@ -65,50 +63,29 @@ export default {
       }
     },
 
-    getTodayList() {
-      const days = ["일", "월", "화", "수", "목", "금", "토"];
-      const today = days[new Date().getDay()]; // 오늘의 요일
+    async getTodayInventory() {
+      try {
+        // 서버에서 오늘 먹을 약과 영양제 리스트 가져오기
+        const response = await UserService.getTodayInventory(this.userId);
+        const todayInventory = response.data;
 
-      // 오늘 날짜에 맞는 약과 영양제 필터링
-      this.todayMediList = this.mediList.filter(item => item.date.includes(today));
-      this.todaySuppList = this.suppList.filter(item => item.date.includes(today));
+        // 약과 영양제를 구분하여 각각의 리스트에 저장
+        this.todayMediList = todayInventory.filter((item) => item.type === "MEDICINE");
+        this.todaySuppList = todayInventory.filter((item) => item.type === "SUPPLEMENT");
+      } catch (error) {
+        console.error("오늘 복용할 약/영양제 조회 에러:", error);
+      }
     },
   },
 
-  mounted() {
+  async mounted() {
+    localStorage.setItem("userId", 3763697930); // 테스트용. 실사용시 무조건 지울것!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     this.userId = Number(localStorage.getItem("userId")); // 로컬스토리지에 저장된 Id 받아오기
-    this.getUserInfo();
-
-    fetch("/assets/mediList.json")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("약 리스트를 가져올 수 없습니다");
-        }
-        return response.json();
-      })
-      .then((mediListData) => {
-        this.mediList = mediListData;
-        return fetch("/assets/suppList.json");
-      })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("영양제 리스트를 가져올 수 없습니다");
-        }
-        return response.json();
-      })
-      .then((suppListData) => {
-        this.suppList = suppListData;
-
-        // 데이터 로드 후 오늘 날짜에 맞는 약과 영양제 필터링
-        this.getTodayList();
-      })
-      .catch((error) => {
-        console.error("오류 발생 : ", error);
-      });
+    await this.getUserInfo(); // 사용자 정보 가져오기
+    await this.getTodayInventory(); // 오늘 먹을 약/영양제 정보 가져오기
   },
 };
 </script>
-
 
 <style scoped>
 /* Layout */
