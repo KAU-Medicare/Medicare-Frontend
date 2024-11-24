@@ -244,9 +244,17 @@ export default {
       }
     },
     editInfo() {
-      alert("정보 수정 기능");
-      this.isModalOpen = false;
+  this.$router.push({
+    path: "/medInfo",
+    query: {
+      id: this.selectedItem.id, // 선택된 약 또는 영양제의 ID
+      name: this.selectedItem.nickname || this.selectedItem.itemName || this.selectedItem.product, // 이름 정보
+      type: this.selectedItem.type === "MEDICINE" ? "pill" : "supplement", // 타입 정보
+      edit: true, // 수정 플래그
     },
+  });
+  this.isModalOpen = false; // 모달 닫기
+},
   },
 };
 </script>

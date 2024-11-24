@@ -339,5 +339,3 @@ export default {
 }
 
 </style>
-
-
