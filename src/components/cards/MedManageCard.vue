@@ -3,13 +3,13 @@
     <div class="infos">
       <!-- 약/영양제 이름 -->
       <div class="name-dates">
-        <span class="names">{{ item.itemName }}</span>
+        <span class="names">{{ item.nickname }}</span>
         <!-- 복용 요일 표시 -->
         <div class="weekdays">
           <span
             v-for="(day, index) in ['일', '월', '화', '수', '목', '금', '토']"
             :key="index"
-            :class="{ active: item.takingDays.includes(day) }"
+            :class="{ active: convertDayToKorean(item.takingDays).includes(day) }"
           >
             {{ day + " " }}
           </span>
@@ -38,15 +38,37 @@ export default {
     },
   },
   methods: {
-    // 시간 포맷 변경: {hour, minute, second} => "HH:MM:SS"
+    // 영어 요일을 한글 요일로 변환
+    convertDayToKorean(days) {
+      const daysMap = {
+        SUNDAY: "일",
+        MONDAY: "월",
+        TUESDAY: "화",
+        WEDNESDAY: "수",
+        THURSDAY: "목",
+        FRIDAY: "금",
+        SATURDAY: "토",
+      };
+      return days.map((day) => daysMap[day] || day); // 매핑되지 않은 값은 그대로 반환
+    },
+
+    // "HH:mm:ss" 형식을 "PM/AM hh:mm" 형식으로 변환
     formatTime(time) {
-      if (!time) return "시간 미정";
-      const { hour, minute, second } = time;
-      return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}:${String(second).padStart(2, "0")}`;
+      if (!time || typeof time !== "string") return "시간 미정";
+
+      const [hour, minute] = time.split(":").map((v) => parseInt(v, 10));
+      if (isNaN(hour) || isNaN(minute)) return "시간 미정";
+
+      const ampm = hour >= 12 ? "PM" : "AM";
+      const adjustedHour = hour % 12 || 12; // 0시를 12시로 변환
+      const formattedMinute = String(minute).padStart(2, "0");
+
+      return `${ampm} ${adjustedHour}:${formattedMinute}`;
     },
   },
 };
 </script>
+
 
 <style scoped>
 .card {

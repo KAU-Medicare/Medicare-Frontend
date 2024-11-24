@@ -43,8 +43,8 @@ export default {
   },
 
   // 약/영양제 삭제
-  deleteInventory(itemId) {
-    return axios.delete(`${API_URL_INVENTORY}/${itemId}`);
+  deleteInventory(kakaoId, itemId) {
+    return axios.delete(`${API_URL_INVENTORY}/${kakaoId}/${itemId}`);
   },
 
   // 약/영양제 정보 수정
@@ -52,12 +52,13 @@ export default {
     return axios.put(`${API_URL_INVENTORY}/${itemId}`, data);
   },
 
-  // 복용 체크
-  checkTaken(itemId, date, taken) {
-    return axios.put(`${API_URL_INVENTORY}/${itemId}/taken`, null, {
+  // 복용 체크 함수
+  checkTaken(kakaoId, itemId, date, taken) {
+    return axios.put(`${API_URL_INVENTORY}/${kakaoId}/${itemId}/taken`, null, {
       params: { date, taken },
     });
   },
+
 
   // 특정 날짜 복용 목록 조회
   getInventoryByDate(kakaoId, date) {

@@ -1,31 +1,49 @@
 <template>
   <div class="container">
     <!-- Welcome Message -->
-    <div class="welcome-msg" v-if="searchedUser.nickname">
+    <div class="welcome-msg">
       <span class="name">{{ searchedUser.nickname }}</span>
       <span>님, 환영합니다!</span>
     </div>
 
     <!-- Medication Section -->
-    <section class="section" v-if="todayMediList.length">
+    <section class="section">
       <h2>오늘 먹을 약</h2>
-      <MedicineCard
-        v-for="(item, index) in todayMediList"
-        :key="index"
-        :item="item"
-        @check="handleCheck"
-      />
+      <template v-if="serverError">
+        <p>서버에 이상이 있습니다. 다시 시도해주세요</p>
+      </template>
+      <template v-else-if="!todayMediList.length && !isLoading">
+        <p>오늘 먹을 약이 없습니다</p>
+      </template>
+      <template v-else>
+        <MedicineCard
+          v-for="(item, index) in todayMediList"
+          :key="index"
+          :item="item"
+          :kakaoId="userId"
+          :date="todayDate"
+        />
+      </template>
     </section>
 
     <!-- Supplement Section -->
-    <section class="section" v-if="todaySuppList.length">
+    <section class="section">
       <h2>오늘 먹을 영양제</h2>
-      <MedicineCard
-        v-for="(item, index) in todaySuppList"
-        :key="index"
-        :item="item"
-        @check="handleCheck"
-      />
+      <template v-if="serverError">
+        <p>서버에 이상이 있습니다. 다시 시도해주세요</p>
+      </template>
+      <template v-else-if="!todaySuppList.length && !isLoading">
+        <p>오늘 먹을 영양제가 없습니다</p>
+      </template>
+      <template v-else>
+        <MedicineCard
+          v-for="(item, index) in todaySuppList"
+          :key="index"
+          :item="item"
+          :kakaoId="userId"
+          :date="todayDate"
+        />
+      </template>
     </section>
   </div>
 </template>
@@ -38,10 +56,13 @@ export default {
   name: "HomePage",
   data() {
     return {
-      userId: 0, // 사용자의 아이디가 담길 변수
+      userId: 0, // 사용자의 아이디
       todayMediList: [], // 오늘 먹을 약 리스트
       todaySuppList: [], // 오늘 먹을 영양제 리스트
       searchedUser: {}, // id로 검색된 유저 객체
+      todayDate: "", // 오늘 날짜 (yyyy-MM-dd 형식)
+      isLoading: true, // 로딩 상태
+      serverError: false, // 서버 에러 여부
     };
   },
 
@@ -50,8 +71,11 @@ export default {
   },
 
   methods: {
-    handleCheck(item) {
-      console.log(`${item.name} checked!`);
+    formatDate(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
     },
 
     async getUserInfo() {
@@ -60,27 +84,43 @@ export default {
         this.searchedUser = response.data;
       } catch (error) {
         console.error("회원 정보 조회 에러:", error);
+        this.serverError = true;
       }
     },
 
     async getTodayInventory() {
       try {
-        // 서버에서 오늘 먹을 약과 영양제 리스트 가져오기
-        const response = await UserService.getTodayInventory(this.userId);
+        const response = await UserService.getInventoryByDate(this.userId, this.todayDate);
         const todayInventory = response.data;
 
-        // 약과 영양제를 구분하여 각각의 리스트에 저장
-        this.todayMediList = todayInventory.filter((item) => item.type === "MEDICINE");
-        this.todaySuppList = todayInventory.filter((item) => item.type === "SUPPLEMENT");
+        // 약과 영양제를 구분하여 각각 리스트에 저장
+        this.todayMediList = todayInventory.filter(
+          (item) => item.type === "MEDICINE"
+        );
+        this.todaySuppList = todayInventory.filter(
+          (item) => item.type === "HEALTH_FOOD"
+        );
       } catch (error) {
         console.error("오늘 복용할 약/영양제 조회 에러:", error);
+        this.serverError = true;
+      } finally {
+        this.isLoading = false; // 로딩 종료
       }
+    },
+
+    getFormattedDate() {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, "0");
+      const day = String(today.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
     },
   },
 
   async mounted() {
-    localStorage.setItem("userId", 3763697930); // 테스트용. 실사용시 무조건 지울것!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    this.userId = Number(localStorage.getItem("userId")); // 로컬스토리지에 저장된 Id 받아오기
+    localStorage.setItem("userId", 3763697930); // 테스트용. 실사용 시 제거
+    this.userId = localStorage.getItem("userId"); // 로컬스토리지에서 ID 가져오기
+    this.todayDate = this.getFormattedDate(); // 오늘 날짜를 yyyy-MM-dd로 설정
     await this.getUserInfo(); // 사용자 정보 가져오기
     await this.getTodayInventory(); // 오늘 먹을 약/영양제 정보 가져오기
   },
