@@ -47,9 +47,10 @@ export default {
     return axios.delete(`${API_URL_INVENTORY}/${kakaoId}/${itemId}`);
   },
 
+
   // 약/영양제 정보 수정
-  updateInventory(itemId, data) {
-    return axios.put(`${API_URL_INVENTORY}/${itemId}`, data);
+  updateInventory(kakaoId, itemId, data) {
+    return axios.put(`/api/inventory/${kakaoId}/${itemId}`, data);
   },
 
   // 복용 체크 함수

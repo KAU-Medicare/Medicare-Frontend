@@ -63,14 +63,12 @@
         </div>
       </div>
 
-      <!-- 1회 복용량 -->
       <div class="input-group time-group">
         <label>1회 복용량</label>
         <input type="number" v-model="doseAmount" min="1" class="dose-input" />
         <span class="type">개</span>
       </div>
 
-      <!-- 날짜 설정 -->
       <div class="input-group date-picker">
         <label>날짜 설정</label>
         <div class="date-inputs">
@@ -93,29 +91,27 @@ import UserService from "@/services/UserService";
 export default {
   data() {
     return {
-      kakaoIdString: "badId", // 카카오 아이디 스트링
+      kakaoIdString: localStorage.getItem("userId") || "", // 카카오 아이디
       medName: "",
       editingName: false,
-      days: ["일", "월", "화", "수", "목", "금", "토"], // 한글 요일
-      selectedDays: [], // 선택된 요일
+      days: ["일", "월", "화", "수", "목", "금", "토"],
+      selectedDays: [],
       alertEnabled: false,
       hour: 12,
       minute: "00",
       ampm: "AM",
-      doseAmount: 1, // 1회 복용량 추가
-      startDate: "", // 시작 날짜
-      endDate: "", // 종료 날짜
-      pageTitle: "", // 페이지 제목
-      jsonDataType: "", // 데이터 타입 ("MEDICINE" or "HEALTH_FOOD")
+      doseAmount: 1,
+      startDate: "",
+      endDate: "",
+      pageTitle: "",
+      jsonDataType: "",
     };
   },
   methods: {
     toggleDay(day) {
-      if (this.selectedDays.includes(day)) {
-        this.selectedDays = this.selectedDays.filter((d) => d !== day);
-      } else {
-        this.selectedDays.push(day);
-      }
+      this.selectedDays = this.selectedDays.includes(day)
+        ? this.selectedDays.filter((d) => d !== day)
+        : [...this.selectedDays, day];
     },
     toggleEditName() {
       this.editingName = !this.editingName;
@@ -124,17 +120,13 @@ export default {
       this.$router.push("/searchByName");
     },
     formatHour(hour, ampm) {
-      const numericHour = parseInt(hour);
-      if (ampm === "PM" && numericHour !== 12) {
-        return numericHour + 12;
-      } else if (ampm === "AM" && numericHour === 12) {
-        return "00";
-      }
-      return numericHour < 10 ? `0${numericHour}` : numericHour; // 두 자리 숫자 유지
+      const numericHour = parseInt(hour, 10);
+      if (ampm === "PM" && numericHour !== 12) return numericHour + 12;
+      if (ampm === "AM" && numericHour === 12) return "00";
+      return numericHour < 10 ? `0${numericHour}` : numericHour;
     },
     formatMinute(minute) {
-      const numericMinute = parseInt(minute);
-      return numericMinute < 10 ? `0${numericMinute}` : numericMinute;
+      return minute < 10 ? `0${minute}` : minute;
     },
     convertDaysToEnglish(days) {
       const dayMap = {
@@ -148,14 +140,32 @@ export default {
       };
       return days.map((day) => dayMap[day]);
     },
+    convertDaysToKorean(days) {
+      const dayMap = {
+        SUNDAY: "일",
+        MONDAY: "월",
+        TUESDAY: "화",
+        WEDNESDAY: "수",
+        THURSDAY: "목",
+        FRIDAY: "금",
+        SATURDAY: "토",
+      };
+      return days.map((day) => dayMap[day]);
+    },
+    async fetchMedicineById(kakaoId, itemId) {
+      try {
+        const response = await UserService.getUserInventory(kakaoId);
+        return (
+          response.data.find((item) => item.id === parseInt(itemId)) || null
+        );
+      } catch (error) {
+        console.error("데이터 가져오기 중 오류 발생:", error);
+        throw error;
+      }
+    },
     async register() {
       if (!this.startDate || !this.endDate) {
         alert("시작 및 종료 날짜를 설정해주세요.");
-        return;
-      }
-      if (!this.$route.query.id) {
-        alert("유효하지 않은 항목입니다. 다시 시도해주세요.");
-        this.$router.push("/searchByName");
         return;
       }
       if (!this.medName.trim()) {
@@ -167,52 +177,117 @@ export default {
         return;
       }
 
+      const jsonData = {
+        kakaoId: this.kakaoIdString,
+        itemId: parseInt(this.$route.query.id),
+        type: this.jsonDataType,
+        nickname: this.medName,
+        capsuleCount: this.doseAmount,
+        useNotification: this.alertEnabled,
+        takingTime: `${this.formatHour(
+          this.hour,
+          this.ampm
+        )}:${this.formatMinute(this.minute)}:00`,
+        takingDays: this.convertDaysToEnglish(this.selectedDays),
+        startDate: this.startDate,
+        endDate: this.endDate,
+      };
+
       try {
-        const jsonData = {
-          kakaoId: this.kakaoIdString,
-          itemId: parseInt(this.$route.query.id),
-          type: this.jsonDataType, // 쿼리에서 설정된 데이터 타입
-          nickname: this.medName,
-          capsuleCount: this.doseAmount,
-          useNotification: this.alertEnabled,
-          takingTime: `${this.formatHour(
-            this.hour,
-            this.ampm
-          )}:${this.formatMinute(this.minute)}:00`,
-          takingDays: this.convertDaysToEnglish(this.selectedDays),
-          startDate: this.startDate,
-          endDate: this.endDate,
-        };
-        console.log(jsonData);
-        const response = await UserService.addInventory(jsonData);
-        console.log("등록 성공:", response.data);
-        alert(`${this.pageTitle}가 성공적으로 등록되었습니다!`);
+        if (this.$route.query.edit === "true") {
+          const response = await UserService.updateInventory(
+            this.kakaoIdString,
+            jsonData.itemId,
+            jsonData
+          );
+          console.log("수정 성공:", response.data);
+          alert("정보가 성공적으로 수정되었습니다!");
+        } else {
+          const response = await UserService.addInventory(jsonData);
+          console.log("등록 성공:", response.data);
+          alert(`${this.pageTitle}가 성공적으로 등록되었습니다!`);
+        }
         this.$router.push("/medManage");
       } catch (error) {
-        console.error("등록 실패:", error);
-
-        // 409 에러 처리 - 서버 메시지를 알림창으로 띄우기
-        if (error.response && error.response.status === 409) {
-          alert(error.response.data.message || "등록 중 충돌이 발생했습니다.");
-        } else {
-          alert("정보를 등록하는 데 문제가 발생했습니다.");
-        }
+        console.error("저장 실패:", error);
+        alert(
+          error.response?.data?.message ||
+            "정보를 저장하는 중 문제가 발생했습니다."
+        );
+      }
+    },
+    initializePageTitleAndType() {
+      const type = this.$route.query.type;
+      if (type === "pill") {
+        this.pageTitle = "약 정보 추가";
+        this.jsonDataType = "MEDICINE";
+      } else if (type === "supplement") {
+        this.pageTitle = "영양제 정보 추가";
+        this.jsonDataType = "HEALTH_FOOD";
+      } else {
+        console.error("잘못된 유형(type)입니다.");
       }
     },
   },
   async mounted() {
-    this.kakaoIdString = String(localStorage.getItem("userId"));
-    this.medName = this.$route.query.name;
-    if (this.$route.query.type === "pill") {
-      this.pageTitle = "약 정보 추가";
-      this.jsonDataType = "MEDICINE";
-    } else if (this.$route.query.type === "supplement") {
-      this.pageTitle = "영양제 정보 추가";
-      this.jsonDataType = "HEALTH_FOOD";
+  this.kakaoIdString = localStorage.getItem("userId") || "";
+  const itemId = this.$route.query.id;
+  this.medName = this.$route.query.name;
+
+  if (!this.kakaoIdString || !itemId) {
+    alert("유효하지 않은 요청입니다. 다시 시도해주세요.");
+    this.$router.push("/searchByName");
+    return;
+  }
+
+  this.initializePageTitleAndType();
+
+  if (this.$route.query.edit === "true") {
+    try {
+      const medicineData = await this.fetchMedicineById(
+        this.kakaoIdString,
+        itemId
+      );
+
+      if (medicineData) {
+        this.medName = medicineData.nickname;
+        this.selectedDays = this.convertDaysToKorean(medicineData.takingDays);
+
+        // 복용 시간 설정
+        const [hour, minute] = medicineData.takingTime
+          ?.split(":")
+          .map(Number) || [12, 0];
+        if (!isNaN(hour) && !isNaN(minute)) {
+          this.hour = hour > 12 ? hour - 12 : hour;
+          this.ampm = hour >= 12 ? "PM" : "AM";
+          this.minute = minute;
+        } else {
+          console.warn("잘못된 복용 시간 형식:", medicineData.takingTime);
+        }
+
+        // 복용 알림 설정
+        this.alertEnabled = !!medicineData.useNotification;
+
+        // 날짜 설정
+        this.startDate = medicineData.startDate;
+        this.endDate = medicineData.endDate;
+
+        // 복용량 설정
+        this.doseAmount = medicineData.capsuleCount || 1;
+      } else {
+        alert("해당 데이터를 불러오는 데 문제가 발생했습니다.");
+        console.error("불러온 데이터:", medicineData);
+      }
+    } catch (error) {
+      alert("데이터를 불러오는 중 문제가 발생했습니다.");
+      console.error("오류:", error);
     }
-  },
+  }
+}
+
 };
 </script>
+
 
 
 <style scoped>

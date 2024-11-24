@@ -90,7 +90,10 @@ export default {
 
     async getTodayInventory() {
       try {
-        const response = await UserService.getInventoryByDate(this.userId, this.todayDate);
+        const response = await UserService.getInventoryByDate(
+          this.userId,
+          this.todayDate
+        );
         const todayInventory = response.data;
 
         // 약과 영양제를 구분하여 각각 리스트에 저장
@@ -121,8 +124,10 @@ export default {
     localStorage.setItem("userId", 3763697930); // 테스트용. 실사용 시 제거
     this.userId = localStorage.getItem("userId"); // 로컬스토리지에서 ID 가져오기
     this.todayDate = this.getFormattedDate(); // 오늘 날짜를 yyyy-MM-dd로 설정
-    await this.getUserInfo(); // 사용자 정보 가져오기
-    await this.getTodayInventory(); // 오늘 먹을 약/영양제 정보 가져오기
+    await Promise.all([
+      this.getUserInfo(), // 사용자 정보 가져오기
+      this.getTodayInventory(), // 오늘 먹을 약/영양제 정보 가져오기
+    ]);
   },
 };
 </script>
