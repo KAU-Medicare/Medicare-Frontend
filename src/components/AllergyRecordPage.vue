@@ -8,29 +8,60 @@
     <div class="upload-section">
       <div class="upload-box" @click="selectPhoto">
         <img v-if="selectedPhoto" :src="selectedPhoto" class="uploaded-image" />
-        <span v-else class="plus-sign">+</span>
-        <span v-if="!selectedPhoto" class="upload-text">사진 등록</span>
+        <span v-if="!selectedPhoto" class="upload-text">+</span>
       </div>
     </div>
+   
 
     <div class="time-section">
-      <label>발생 시간</label>
-      <div class="time-range" @click="editTime">
-        <span>{{ timeRange }}</span>
-      </div>
-      <div v-show="isEditing"> <!-- v-if에서 v-show로 변경 -->
-        <input type="number" v-model="startHour" min="0" max="23" placeholder="시" @focus="isEditing = true" />
-        :
-        <input type="number" v-model="startMinute" min="0" max="59" placeholder="분" @focus="isEditing = true" />
-        ~
-        <input type="number" v-model="endHour" min="0" max="23" placeholder="시" @focus="isEditing = true" />
-        :
-        <input type="number" v-model="endMinute" min="0" max="59" placeholder="분" @blur="saveEndTime" />
-      </div>
+  <label class="time-label">발생 시간</label>
+  <div class="time-input-container">
+    <span class="colon"> </span>
+    <div class="time-input-group">
+      <input
+        type="number"
+        v-model="startHour"
+        min="0"
+        max="23"
+        class="time-input"
+        placeholder="시"
+      />
+      <span class="colon">:</span>
+      <input
+        type="number"
+        v-model="startMinute"
+        min="0"
+        max="59"
+        class="time-input"
+        placeholder="분"
+      />
     </div>
+    <span class="time-divider">~</span>
+    <div class="time-input-group">
+      <input
+        type="number"
+        v-model="endHour"
+        min="0"
+        max="23"
+        class="time-input"
+        placeholder="시"
+      />
+      <span class="colon">:</span>
+      <input
+        type="number"
+        v-model="endMinute"
+        min="0"
+        max="59"
+        class="time-input"
+        placeholder="분"
+      />
+    </div>
+    <span class="colon"> </span>
+  </div>
+</div>
     
     <div class="symptoms-section">
-      <label>증상</label>
+      <label class="time-label">증상</label>
       <div class="symptoms">
         <span 
           v-for="(symptom, index) in symptoms" 
@@ -164,17 +195,19 @@ export default {
 }
 
 .upload-box {
-  background-color: #d3d3d3;
-  width: 200px;
-  height: 200px;
-  display: flex;
   flex-direction: column;
+  color: #9e9e9e;
+  position: relative;
+  width: 30vh;
+  height: 30vh;
+  background-color: #e0e0e0;
+  display: flex;
   align-items: center;
   justify-content: center;
-  color: black;
   cursor: pointer;
+  border-radius: 8px;
   overflow: hidden;
-  position: relative;
+  font-size: 8vh;
 }
 
 .uploaded-image {
@@ -184,12 +217,6 @@ export default {
   position: absolute;
   top: 0;
   left: 0;
-}
-
-.time-section {
-  margin-top: 20px;
-  width: 100%;
-  max-width: 600px;
 }
 
 .time-range {
@@ -221,18 +248,79 @@ export default {
 }
 
 .register-button {
-  background-color: orange;
+  background-color: #ff8947;
+  width: 90%;
+  height: 7vh;
   color: white;
-  padding: 20px 0px; /* 기본 세로 길이 증가 */
+  padding: 1vh 0;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
-  margin: auto 10px;
-  width: 100%;
+  font-size: 16px;
   max-width: 600px;
   position: fixed;
-  bottom: 15px; /* 버튼을 화면 하단에서 살짝 위로 올림 */
+  bottom: 3vh;
+  left: 50%;
+  transform: translateX(-50%);
 }
+
+.time-section {
+  margin-top: 20px;
+  width: 100%;
+  max-width: 600px;
+  text-align: left;
+}
+
+.time-label {
+  display: block;
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.time-input-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.time-input-group {
+  display: flex;
+  align-items: center;
+  gap: 5px; /* 간격 조절 */
+}
+
+.time-input {
+  width: 60px;
+  height: 40px;
+  padding: 5px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  text-align: center;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.time-input:focus {
+  border-color: #ff9a76;
+  box-shadow: 0 0 5px rgba(255, 154, 118, 0.5);
+  outline: none;
+}
+
+.colon {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.time-divider {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0 10px;
+  color: #666;
+}
+
 
 /* 반응형 디자인 */
 @media (max-width: 768px) {

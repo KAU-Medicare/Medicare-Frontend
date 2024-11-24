@@ -1,21 +1,24 @@
 <template>
   <div class="container">
     <div class="search-bar">
+      <!-- 검색창 -->
       <input
         v-model="searchQuery"
         placeholder="찾고 있는 약 및 영양제가 있나요?"
         @keypress.enter="fetchMedicines"
       />
+      <!-- 검색 버튼 -->
       <button class="search-button" @click="fetchMedicines">검색</button>
     </div>
 
     <div class="medicine-list">
+      <!-- 검색 결과 -->
       <div v-if="filteredMedicines.length > 0" class="medicine-grid">
         <div
           v-for="medicine in filteredMedicines"
           :key="medicine.id"
           class="medicine-card"
-          @click="goToMedInfo(medicine.id, medicine.itemName)"
+          @click="goToMedInfo(medicine.id, medicine.itemName || medicine.product)"
         >
           <img
             src="@/assets/navBtnImg/nutriSuppBtn.png"
@@ -23,11 +26,12 @@
             class="medicine-image"
           />
           <div class="medicine-info">
-            <h3>{{ medicine.itemName }}</h3>
-            <p>{{ medicine.entpName }}</p>
+            <h3>{{ medicine.itemName || medicine.product }}</h3>
+            <p>{{ medicine.entpName || medicine.enterprise }}</p>
           </div>
         </div>
       </div>
+      <!-- 검색 결과 없을 때 -->
       <div v-else class="no-results">
         <p>검색 결과가 없습니다.</p>
       </div>
@@ -37,64 +41,29 @@
 
 <script>
 import UserService from "@/services/UserService";
-import Fuse from "fuse.js"; // fuse.js 유사 텍스트 검색 라이브러리
 
 export default {
   data() {
     return {
       searchQuery: "", // 검색어
-      medicines: [], // 모든 약 데이터
       filteredMedicines: [], // 검색 결과
-      fuse: null, // Fuse.js 인스턴스
+      type: this.$route.query.type || "pill", // 기본값은 'pill'로 설정
     };
   },
-  async mounted() {
-    try {
-      // 모든 약 데이터를 불러와 Fuse.js 초기화
-      const response = await UserService.searchMedicines(""); // 빈 문자열로 전체 데이터 요청
-      this.medicines = response.data;
-
-      // Fuse.js 초기화
-      this.fuse = new Fuse(this.medicines, {
-        keys: ["itemName"], // 검색 대상 필드
-        threshold: 0.4, // 유사도 검색 기준 (낮을수록 엄격)
-        includeScore: true, // 점수 포함 (디버깅에 유용)
-      });
-
-      this.filteredMedicines = this.medicines; // 초기 상태: 모든 데이터 표시
-    } catch (error) {
-      console.error("약 데이터를 가져오는 중 오류 발생:", error);
-      alert("약 데이터를 가져오는 중 문제가 발생했습니다.");
-    }
-  },
   methods: {
-    // 검색 실행
-    filterMedicines() {
-      const query = this.searchQuery.trim();
-      if (!query) {
-        // 검색어가 비어 있으면 filteredMedicines 초기화 후 반환
-        this.filteredMedicines = [];
-        return;
-      }
-
-      if (!this.fuse) {
-        console.error("Fuse.js 인스턴스가 초기화되지 않았습니다.");
-        return;
-      }
-
-      const results = this.fuse.search(query);
-      this.filteredMedicines = results.map((result) => result.item); // Fuse 결과에서 실제 아이템만 추출
-    },
-
     // 약 정보 페이지로 이동
     goToMedInfo(medicineId, medicineName) {
       this.$router.push({
         path: "/medInfo",
-        query: { id: medicineId, name: medicineName },
+        query: {
+          id: medicineId,
+          name: medicineName,
+          type: this.type, // 'pill' 또는 'supplement' 전달
+        },
       });
     },
 
-    // 서버에서 데이터 검색
+    // 검색 실행
     async fetchMedicines() {
       if (!this.searchQuery.trim()) {
         alert("검색어를 입력해주세요.");
@@ -102,19 +71,37 @@ export default {
       }
 
       try {
-        const response = await UserService.searchMedicines(this.searchQuery);
-        this.filteredMedicines = response.data; // 서버 검색 결과
+        let response;
+        if (this.type === "pill") {
+          // 약 검색
+          response = await UserService.searchMedicines(this.searchQuery);
+          this.filteredMedicines = response.data.map((item) => ({
+            id: item.id,
+            itemName: item.itemName, // 약의 제품명
+            entpName: item.entpName, // 제조사
+            itemSeq: item.itemSeq, // 추가 필드(필요 시)
+          }));
+        } else if (this.type === "supplement") {
+          // 영양제 검색
+          response = await UserService.searchHealthFoods(this.searchQuery);
+          this.filteredMedicines = response.data.map((item) => ({
+            id: item.id,
+            product: item.product, // 영양제 제품명
+            enterprise: item.enterprise, // 제조사
+            statementNo: item.statementNo, // 식품 번호
+          }));
+        }
       } catch (error) {
-        console.error("약 데이터를 검색하는 중 오류 발생:", error);
-        alert("약 데이터를 검색하는 중 문제가 발생했습니다.");
+        console.error("검색 중 오류 발생:", error);
+        alert("검색하는 중 문제가 발생했습니다.");
       }
-
-      // 추가적으로 Fuse.js를 사용해 로컬에서 검색어 보완
-      this.filterMedicines();
     },
   },
 };
 </script>
+
+
+
 
 <style scoped>
 .container {

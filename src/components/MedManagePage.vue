@@ -4,7 +4,11 @@
     <div class="header">
       <h1>복약 관리</h1>
       <button class="calendar-btn">
-        <img src="@/assets/calendar.png" @click="calenderClick" alt="calendar" />
+        <img
+          src="@/assets/calendar.png"
+          @click="calenderClick"
+          alt="calendar"
+        />
       </button>
     </div>
 
@@ -15,7 +19,7 @@
         v-for="(item, index) in mediList"
         :key="index"
         :item="item"
-        @click="toggleModal"
+        @click="toggleModal($event, item)"
       />
     </section>
 
@@ -26,7 +30,7 @@
         v-for="(item, index) in suppList"
         :key="index"
         :item="item"
-        @click="toggleModal"
+        @click="toggleModal($event, item)"
       />
     </section>
 
@@ -35,7 +39,7 @@
       <button
         v-if="isExpanded"
         class="sub-btn supplement-btn"
-        @click="handleSupplementClick"
+        @click="openSupplementOptionsModal"
       >
         <img src="@/assets/heart.png" alt="Supp" class="icon-image" />
       </button>
@@ -43,7 +47,7 @@
       <button
         v-if="isExpanded"
         class="sub-btn pill-btn"
-        @click="handlePillClick"
+        @click="openPillOptionsModal"
       >
         <img src="@/assets/pill.png" alt="pill" class="icon-image" />
       </button>
@@ -58,10 +62,51 @@
         <div
           class="modal-content"
           @click.stop
-          :style="{ top: modalPosition.top + 'px', left: modalPosition.left + 'px' }"
+          :style="{
+            top: modalPosition.top + 'px',
+            left: modalPosition.left + 'px',
+          }"
         >
           <p @click="editInfo">정보 수정</p>
           <p @click="deleteItem">삭제</p>
+        </div>
+      </div>
+
+      <!-- Supplement Options Modal -->
+      <div
+        v-if="isSupplementOptionsModalOpen"
+        class="modal-overlay"
+        @click="closeSupplementOptionsModal"
+      >
+        <div
+          class="modal-content"
+          @click.stop
+          :style="{
+            top: modalPosition.top + 'px',
+            left: modalPosition.left + 'px',
+          }"
+        >
+          <p @click="addSupplementByBarcode">바코드로 추가하기</p>
+          <p @click="addSupplementByName">이름으로 추가하기</p>
+        </div>
+      </div>
+
+      <!-- Pill Options Modal -->
+      <div
+        v-if="isPillOptionsModalOpen"
+        class="modal-overlay"
+        @click="closePillOptionsModal"
+      >
+        <div
+          class="modal-content"
+          @click.stop
+          :style="{
+            top: modalPosition.top + 'px',
+            left: modalPosition.left + 'px',
+          }"
+        >
+          <p @click="addPillByBarcode">바코드로 추가하기</p>
+          <p @click="addPillByName">이름으로 추가하기</p>
         </div>
       </div>
     </div>
@@ -81,6 +126,8 @@ export default {
       suppList: [], // 영양제 json이 담길 변수
       isExpanded: false, // 버튼 확장 상태
       isModalOpen: false, // 모달 상태
+      isSupplementOptionsModalOpen: false, // 영양제 추가 옵션 모달 상태
+      isPillOptionsModalOpen: false, // 약 추가 옵션 모달 상태
       modalPosition: { top: 0, left: 0 }, // 모달 위치 초기화
     };
   },
@@ -102,9 +149,14 @@ export default {
 
       // 약과 영양제를 구분하여 리스트에 저장
       this.mediList = inventoryData.filter((item) => item.type === "MEDICINE");
-      this.suppList = inventoryData.filter((item) => item.type === "HEALTH_FOOD");
+      this.suppList = inventoryData.filter(
+        (item) => item.type === "HEALTH_FOOD"
+      );
     } catch (error) {
-      console.error("약/영양제 데이터를 불러오는 중 오류가 발생했습니다:", error);
+      console.error(
+        "약/영양제 데이터를 불러오는 중 오류가 발생했습니다:",
+        error
+      );
     }
   },
 
@@ -115,31 +167,90 @@ export default {
     toggleButtons() {
       this.isExpanded = !this.isExpanded;
     },
-    handlePillClick() {
-      this.$router.push("/searchByName"); // 약 검색 경로로 이동
+    openPillOptionsModal(event) {
+      this.isPillOptionsModalOpen = true;
+      this.modalPosition = {
+        top: event.clientY + window.scrollY,
+        left: event.clientX + window.scrollX,
+      };
     },
-    handleSupplementClick() {
-      this.$router.push("/searchByName"); // 영양제 검색 경로로 이동
+    closePillOptionsModal() {
+      this.isPillOptionsModalOpen = false;
     },
-    toggleModal(event) {
+    openSupplementOptionsModal(event) {
+      this.isSupplementOptionsModalOpen = true;
+      this.modalPosition = {
+        top: event.clientY + window.scrollY,
+        left: event.clientX + window.scrollX,
+      };
+    },
+    closeSupplementOptionsModal() {
+      this.isSupplementOptionsModalOpen = false;
+    },
+    addPillByBarcode() {
+      this.$router.push({ path: "/searchByCamera", query: { type: "pill" } });
+    },
+    addPillByName() {
+      this.$router.push({ path: "/searchByName", query: { type: "pill" } });
+    },
+    addSupplementByBarcode() {
+      this.$router.push({
+        path: "/searchByCamera",
+        query: { type: "supplement" },
+      });
+    },
+    addSupplementByName() {
+      this.$router.push({
+        path: "/searchByName",
+        query: { type: "supplement" },
+      });
+    },
+    toggleModal(event, item) {
       const offsetY = 0; // 모달을 클릭 위치 위로 띄울 거리 (조정 가능)
       this.modalPosition = {
         top: event.clientY + window.scrollY - offsetY,
         left: event.clientX + window.scrollX,
       };
+      this.selectedItem = item; // 모달이 열린 항목을 저장
       this.isModalOpen = !this.isModalOpen; // 모달 열고 닫기
+    },
+    async deleteItem() {
+      if (!this.selectedItem) {
+        alert("삭제할 항목이 선택되지 않았습니다.");
+        return;
+      }
+
+      try {
+        // UserService를 통해 API 호출
+        await UserService.deleteInventory(this.userId, this.selectedItem.id);
+
+        // 약 또는 영양제 리스트에서 해당 항목 제거
+        if (this.selectedItem.type === "MEDICINE") {
+          this.mediList = this.mediList.filter(
+            (item) => item.id !== this.selectedItem.id
+          );
+        } else if (this.selectedItem.type === "HEALTH_FOOD") {
+          this.suppList = this.suppList.filter(
+            (item) => item.id !== this.selectedItem.id
+          );
+        }
+
+        alert("삭제되었습니다.");
+      } catch (error) {
+        console.error("삭제 중 오류 발생:", error);
+        alert("삭제하는 데 문제가 발생했습니다.");
+      } finally {
+        this.isModalOpen = false; // 모달 닫기
+      }
     },
     editInfo() {
       alert("정보 수정 기능");
       this.isModalOpen = false;
     },
-    deleteItem() {
-      alert("삭제 기능");
-      this.isModalOpen = false;
-    },
   },
 };
 </script>
+
 
 <style scoped>
 /* Layout */

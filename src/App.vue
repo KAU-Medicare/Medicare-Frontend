@@ -59,6 +59,10 @@ input[type="text"] {
   box-sizing: border-box; /* 패딩 포함한 박스 크기 */
 }
 
+input[type="date"] {
+  font-family: "GwangYang", sans-serif; /* 폰트 적용 */
+}
+
 #app {
   display: flex;
   flex-direction: column;
