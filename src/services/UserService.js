@@ -5,11 +5,17 @@ const API_URL_USERS = "/api/v1/users";
 const API_URL_SEARCH = "/api/search";
 const API_URL_INVENTORY = "/api/inventory";
 const API_URL_SYMPTOMS = "/api/symptoms";
+const API_URL_MEDICINES = "/api/medicines"; // 새 API URL 추가
 
 export default {
   // 카카오 로그인
   kakaoLogin(code) {
     return axios.post(`${API_URL_USERS}/kakao/${code}`);
+  },
+
+  // 약 표준 코드로 약 정보 조회
+  getMedicineByStandardCode(standardCode) {
+    return axios.get(`${API_URL_MEDICINES}/standard-code/${standardCode}`);
   },
 
   // 약 검색

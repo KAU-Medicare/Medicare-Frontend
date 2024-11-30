@@ -92,6 +92,7 @@ export default {
   data() {
     return {
       kakaoIdString: localStorage.getItem("userId") || "", // 카카오 아이디
+      itemId: 0,
       medName: "",
       editingName: false,
       days: ["일", "월", "화", "수", "목", "금", "토"],
@@ -108,6 +109,19 @@ export default {
     };
   },
   methods: {
+    // 날짜 배열을 "yyyy-MM-dd" 형식으로 변환
+    formatDateForInput(dateArray) {
+      if (!Array.isArray(dateArray) || dateArray.length !== 3) {
+        console.warn("Invalid dateArray:", dateArray);
+        return ""; // 기본값 반환
+      }
+      // 배열에서 year, month, day 추출
+      const [year, month, day] = dateArray;
+      // month와 day가 2자리 숫자가 되도록 변환
+      const formattedMonth = String(month).padStart(2, "0");
+      const formattedDay = String(day).padStart(2, "0");
+      return `${year}-${formattedMonth}-${formattedDay}`;
+    },
     toggleDay(day) {
       this.selectedDays = this.selectedDays.includes(day)
         ? this.selectedDays.filter((d) => d !== day)
@@ -122,8 +136,8 @@ export default {
     formatHour(hour, ampm) {
       const numericHour = parseInt(hour, 10);
       if (ampm === "PM" && numericHour !== 12) return numericHour + 12;
-      if (ampm === "AM" && numericHour === 12) return "00";
-      return numericHour < 10 ? `0${numericHour}` : numericHour;
+      if (ampm === "AM" && numericHour === 12) return 0;
+      return numericHour;
     },
     formatMinute(minute) {
       return minute < 10 ? `0${minute}` : minute;
@@ -177,17 +191,15 @@ export default {
         return;
       }
 
-      const jsonData = {
-        kakaoId: this.kakaoIdString,
-        itemId: parseInt(this.$route.query.id),
-        type: this.jsonDataType,
+      // 공통 JSON 데이터 생성
+      const baseJsonData = {
         nickname: this.medName,
         capsuleCount: this.doseAmount,
         useNotification: this.alertEnabled,
-        takingTime: `${this.formatHour(
-          this.hour,
-          this.ampm
-        )}:${this.formatMinute(this.minute)}:00`,
+        takingTime: [
+          this.formatHour(this.hour, this.ampm),
+          parseInt(this.minute),
+        ],
         takingDays: this.convertDaysToEnglish(this.selectedDays),
         startDate: this.startDate,
         endDate: this.endDate,
@@ -197,32 +209,42 @@ export default {
         if (this.$route.query.edit === "true") {
           const response = await UserService.updateInventory(
             this.kakaoIdString,
-            jsonData.itemId,
-            jsonData
+            this.itemId,
+            baseJsonData
           );
           console.log("수정 성공:", response.data);
           alert("정보가 성공적으로 수정되었습니다!");
         } else {
-          const response = await UserService.addInventory(jsonData);
+          // 등록 요청 (POST): kakaoId 포함
+          const jsonDataWithKakaoId = {
+            kakaoId: this.kakaoIdString,
+            itemId: parseInt(this.$route.query.id),
+            type: this.jsonDataType,
+            ...baseJsonData,
+          };
+          console.log("POST Request payload:", jsonDataWithKakaoId);
+          const response = await UserService.addInventory(jsonDataWithKakaoId);
           console.log("등록 성공:", response.data);
           alert(`${this.pageTitle}가 성공적으로 등록되었습니다!`);
         }
         this.$router.push("/medManage");
       } catch (error) {
-        console.error("저장 실패:", error);
+        console.error("Error details:", error.response?.data || error.message);
         alert(
           error.response?.data?.message ||
-            "정보를 저장하는 중 문제가 발생했습니다."
+            "요청을 처리하는 중 문제가 발생했습니다."
         );
       }
     },
     initializePageTitleAndType() {
-      const type = this.$route.query.type;
+      const type = this.$route.query.type; // 'pill' 또는 'supplement'
+      const isEdit = this.$route.query.edit === "true"; // edit 값이 "true"인지 확인
+
       if (type === "pill") {
-        this.pageTitle = "약 정보 추가";
+        this.pageTitle = isEdit ? "약 정보 수정" : "약 정보 추가";
         this.jsonDataType = "MEDICINE";
       } else if (type === "supplement") {
-        this.pageTitle = "영양제 정보 추가";
+        this.pageTitle = isEdit ? "영양제 정보 수정" : "영양제 정보 추가";
         this.jsonDataType = "HEALTH_FOOD";
       } else {
         console.error("잘못된 유형(type)입니다.");
@@ -230,61 +252,58 @@ export default {
     },
   },
   async mounted() {
-  this.kakaoIdString = localStorage.getItem("userId") || "";
-  const itemId = this.$route.query.id;
-  this.medName = this.$route.query.name;
+    this.kakaoIdString = localStorage.getItem("userId") || "";
+    this.itemId = this.$route.query.id;
+    this.medName = this.$route.query.name;
 
-  if (!this.kakaoIdString || !itemId) {
-    alert("유효하지 않은 요청입니다. 다시 시도해주세요.");
-    this.$router.push("/searchByName");
-    return;
-  }
-
-  this.initializePageTitleAndType();
-
-  if (this.$route.query.edit === "true") {
-    try {
-      const medicineData = await this.fetchMedicineById(
-        this.kakaoIdString,
-        itemId
-      );
-
-      if (medicineData) {
-        this.medName = medicineData.nickname;
-        this.selectedDays = this.convertDaysToKorean(medicineData.takingDays);
-
-        // 복용 시간 설정
-        const [hour, minute] = medicineData.takingTime
-          ?.split(":")
-          .map(Number) || [12, 0];
-        if (!isNaN(hour) && !isNaN(minute)) {
-          this.hour = hour > 12 ? hour - 12 : hour;
-          this.ampm = hour >= 12 ? "PM" : "AM";
-          this.minute = minute;
-        } else {
-          console.warn("잘못된 복용 시간 형식:", medicineData.takingTime);
-        }
-
-        // 복용 알림 설정
-        this.alertEnabled = !!medicineData.useNotification;
-
-        // 날짜 설정
-        this.startDate = medicineData.startDate;
-        this.endDate = medicineData.endDate;
-
-        // 복용량 설정
-        this.doseAmount = medicineData.capsuleCount || 1;
-      } else {
-        alert("해당 데이터를 불러오는 데 문제가 발생했습니다.");
-        console.error("불러온 데이터:", medicineData);
-      }
-    } catch (error) {
-      alert("데이터를 불러오는 중 문제가 발생했습니다.");
-      console.error("오류:", error);
+    if (!this.kakaoIdString || !this.itemId) {
+      alert("유효하지 않은 요청입니다. 다시 시도해주세요.");
+      this.$router.push("/searchByName");
+      return;
     }
-  }
-}
 
+    this.initializePageTitleAndType();
+
+    if (this.$route.query.edit === "true") {
+      try {
+        const medicineData = await this.fetchMedicineById(
+          this.kakaoIdString,
+          this.itemId
+        );
+
+        if (medicineData) {
+          this.medName = medicineData.nickname;
+          this.selectedDays = this.convertDaysToKorean(medicineData.takingDays);
+
+          // 복용 시간 설정
+          const [hour, minute] = medicineData.takingTime || [0, 0];
+          if (!isNaN(hour) && !isNaN(minute)) {
+            this.hour = hour % 12 || 12; // 12시간제로 변환
+            this.ampm = hour >= 12 ? "PM" : "AM"; // 오전/오후 설정
+            this.minute = String(minute).padStart(2, "0");
+          } else {
+            console.warn("잘못된 복용 시간 형식:", medicineData.takingTime);
+          }
+
+          // 복용 알림 설정
+          this.alertEnabled = !!medicineData.useNotification;
+
+          // 날짜 설정 (yyyy,MM,dd → yyyy-MM-dd 변환)
+          this.startDate = this.formatDateForInput(medicineData.startDate);
+          this.endDate = this.formatDateForInput(medicineData.endDate);
+
+          // 복용량 설정
+          this.doseAmount = medicineData.capsuleCount || 1;
+        } else {
+          alert("해당 데이터를 불러오는 데 문제가 발생했습니다.");
+          console.error("불러온 데이터:", medicineData);
+        }
+      } catch (error) {
+        alert("데이터를 불러오는 중 문제가 발생했습니다.");
+        console.error("오류:", error);
+      }
+    }
+  },
 };
 </script>
 
@@ -682,4 +701,3 @@ input:checked + .slider:before {
   }
 }
 </style>
-
