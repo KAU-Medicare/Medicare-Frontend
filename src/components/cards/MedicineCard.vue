@@ -42,25 +42,28 @@ export default {
     };
   },
   watch: {
-  // item의 taken 값이 변경되었을 때 isChecked 업데이트
-  "item.taken"(newValue) {
-    this.isChecked = newValue;
+    // item의 taken 값이 변경되었을 때 isChecked 업데이트
+    "item.taken"(newValue) {
+      this.isChecked = newValue;
+    },
   },
-},
   computed: {
     formattedTime() {
-      if (!this.item.takingTime) return "시간 미정";
+      if (!this.item.takingTime || !Array.isArray(this.item.takingTime)) {
+        return "시간 미정"; // `takingTime`이 없거나 올바른 형식이 아닐 경우
+      }
 
-      // "HH:mm:ss" 형식에서 시간과 분 추출
-      const [hour, minute] = this.item.takingTime
-        .split(":")
-        .map((v) => parseInt(v, 10));
+      // takingTime 배열에서 hour와 minute 값을 가져오기
+      const [hour, minute] = this.item.takingTime;
+      if (typeof hour !== "number" || typeof minute !== "number") {
+        return "시간 미정"; // 데이터가 숫자가 아닐 경우
+      }
+
       const ampm = hour >= 12 ? "PM" : "AM";
       const adjustedHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
       return `${ampm} ${adjustedHour}:${minute < 10 ? "0" : ""}${minute}`;
     },
     formattedDays() {
-      // 영어 요일을 한글 요일로 변환
       const daysMap = {
         SUNDAY: "일",
         MONDAY: "월",
@@ -70,11 +73,10 @@ export default {
         FRIDAY: "금",
         SATURDAY: "토",
       };
-      return this.item.takingDays
-        .map((day) => daysMap[day] || day) // 영어를 한글로 변환, 매핑 안된 값은 그대로 반환
-        .join(", ");
+      return this.item.takingDays.map((day) => daysMap[day] || day).join(", ");
     },
   },
+
   methods: {
     async toggleCheck() {
       const originalState = this.isChecked; // 기존 상태 저장

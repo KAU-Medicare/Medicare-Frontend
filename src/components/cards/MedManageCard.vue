@@ -52,12 +52,16 @@ export default {
       return days.map((day) => daysMap[day] || day); // 매핑되지 않은 값은 그대로 반환
     },
 
-    // "HH:mm:ss" 형식을 "PM/AM hh:mm" 형식으로 변환
+    // [hour, minute] 형식을 "PM/AM hh:mm" 형식으로 변환
     formatTime(time) {
-      if (!time || typeof time !== "string") return "시간 미정";
+      if (!time || !Array.isArray(time) || time.length !== 2) {
+        return "시간 미정";
+      }
 
-      const [hour, minute] = time.split(":").map((v) => parseInt(v, 10));
-      if (isNaN(hour) || isNaN(minute)) return "시간 미정";
+      const [hour, minute] = time;
+      if (typeof hour !== "number" || typeof minute !== "number") {
+        return "시간 미정";
+      }
 
       const ampm = hour >= 12 ? "PM" : "AM";
       const adjustedHour = hour % 12 || 12; // 0시를 12시로 변환
@@ -68,6 +72,7 @@ export default {
   },
 };
 </script>
+
 
 
 <style scoped>

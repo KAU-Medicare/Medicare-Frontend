@@ -1,9 +1,16 @@
-<template>
-<button class="back-button" @click="backClick()">←</button>
+<template> 
+  <button class="back-button" @click="backClick()">←</button>
   <div class="container">
     <h1 style="margin: 0">바코드로 검색</h1>
     <div class="image-container" @click="triggerFileInput">
-      <input type="file" accept="image/*" capture="environment" ref="fileInput" @change="onFileSelected" style="display: none;" />
+      <input
+        type="file"
+        accept="image/*"
+        capture="environment"
+        ref="fileInput"
+        @change="onFileSelected"
+        style="display: none;"
+      />
       <img v-if="selectedImage" :src="selectedImage" alt="Selected Image" class="preview-image" />
       <div v-else class="placeholder">
         <span>+</span>
@@ -18,13 +25,12 @@
     <div v-if="showManualInput" class="manual-input-container">
       <input type="text" v-model="manualBarcode" placeholder="바코드 번호 입력" />
     </div>
-
-    
   </div>
-  <button class="search-button">검색하기</button>
+  <button class="search-button" @click="searchMedicine">검색하기</button>
 </template>
 
 <script>
+import UserService from "@/services/UserService";
 import { BrowserMultiFormatReader } from "@zxing/library";
 
 export default {
@@ -34,7 +40,7 @@ export default {
       selectedImage: null,
       showManualInput: false,
       manualBarcode: "",
-      reader: new BrowserMultiFormatReader()
+      reader: new BrowserMultiFormatReader(),
     };
   },
   methods: {
@@ -61,13 +67,41 @@ export default {
         const img = new Image();
         img.src = URL.createObjectURL(file);
         img.onload = () => {
-          this.reader.decodeFromImageElement(img)
-            .then(result => resolve(result.text))
+          this.reader
+            .decodeFromImageElement(img)
+            .then((result) => resolve(result.text))
             .catch(() => reject(`${description} 인식 실패`));
         };
       });
-    }
-  }
+    },
+    async searchMedicine() {
+      const barcode = this.manualBarcode || this.barcodeResult;
+
+      if (!barcode) {
+        alert("바코드를 입력하거나 이미지를 스캔하세요.");
+        return;
+      }
+
+      try {
+        // 표준 코드로 약 정보 조회
+        const response = await UserService.getMedicineByStandardCode(barcode);
+        const medicine = response.data;
+
+        // 약 정보 페이지로 이동
+        this.$router.push({
+          path: "/medInfo",
+          query: {
+            id: medicine.id,
+            name: medicine.itemName,
+            type: "pill", // 필요한 경우 변경
+          },
+        });
+      } catch (error) {
+        console.error("약 정보 조회 실패:", error.response?.data || error.message);
+        alert("약 정보를 조회할 수 없습니다. 올바른 바코드를 입력하세요.");
+      }
+    },
+  },
 };
 </script>
 
