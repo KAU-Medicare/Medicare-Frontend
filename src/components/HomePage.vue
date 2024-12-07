@@ -121,6 +121,7 @@ export default {
   },
 
   async mounted() {
+    //localStorage.setItem("userId", 3763697930); // 필요시 제거!!!!!!!!!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     this.userId = localStorage.getItem("userId"); // 로컬스토리지에서 ID 가져오기
     this.todayDate = this.getFormattedDate(); // 오늘 날짜를 yyyy-MM-dd로 설정
     await Promise.all([

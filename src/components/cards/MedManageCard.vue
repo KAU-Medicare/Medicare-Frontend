@@ -113,7 +113,7 @@ export default {
 
 .names {
   font-weight: bold;
-  font-size: 2.5vh;
+  font-size: 2vh;
   padding-right: 10px;
 }
 
