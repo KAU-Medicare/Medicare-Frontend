@@ -17,7 +17,7 @@ self.addEventListener('push', (event) => {
     event.notification.close();
   
     event.waitUntil(
-      clients.openWindow('/notification-page') // 클릭 시 열릴 URL
+      clients.openWindow('/') // 클릭 시 열릴 URL
     );
   });
   

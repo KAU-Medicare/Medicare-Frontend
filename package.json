@@ -34,7 +34,9 @@
   "eslintConfig": {
     "root": true,
     "env": {
-      "node": true
+      "browser": true,
+      "node": true,
+      "serviceworker": true
     },
     "extends": [
       "plugin:vue/vue3-essential",
