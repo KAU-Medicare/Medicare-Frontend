@@ -64,6 +64,7 @@ export default {
         const registration = await navigator.serviceWorker.register(
           "/service-worker.js"
         );
+        console.log("Service Worker 등록 성공:", registration);
         if (!registration) {
           throw new Error("서비스 워커 등록 실패");
         }
@@ -84,7 +85,7 @@ export default {
         console.log("Push Subscription:", subscription);
 
         // 서버로 구독 정보 전송
-        await fetch("/api/push/subscribe", {
+        await fetch(`/api/push/subscribe/${this.userId}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
