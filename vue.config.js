@@ -30,6 +30,7 @@ module.exports = defineConfig({
     workboxOptions: {
       skipWaiting: true, // 새 버전 배포 시 즉시 활성화
       clientsClaim: true, // 활성화 후 PWA가 페이지 제어
+      exclude: ['service-worker.js'],
     }
   }
 });

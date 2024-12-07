@@ -199,7 +199,7 @@ export default {
   transition: background-color 0.3s ease;
   text-align: center;
   position: absolute;
-  bottom: 180px;
+  bottom: 12vh;
 }
 
 .logout-btn:hover {
