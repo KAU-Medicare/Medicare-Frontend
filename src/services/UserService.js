@@ -5,7 +5,9 @@ const API_URL_USERS = "/api/v1/users";
 const API_URL_SEARCH = "/api/search";
 const API_URL_INVENTORY = "/api/inventory";
 const API_URL_SYMPTOMS = "/api/symptoms";
-const API_URL_MEDICINES = "/api/medicines"; // 새 API URL 추가
+const API_URL_MEDICINES = "/api/medicines";
+const API_URL_ALLERGY = "/api/allergy";
+
 
 export default {
   // 카카오 로그인
@@ -53,6 +55,36 @@ export default {
     return axios.delete(`${API_URL_INVENTORY}/${kakaoId}/${itemId}`);
   },
 
+  // 특정 날짜 알레르기 결과 조회
+  getAllergyResult(kakaoId, occurredDate) {
+    return axios.get(`${API_URL_ALLERGY}/result`, {
+      params: {
+        kakaoId,
+        occurredDate,
+      },
+    });
+  },
+
+  // 알레르기 분석 API 요청
+  analyzeAllergy(kakaoId, occurredDate, jsonData) {
+    return axios.post(
+      `${API_URL_ALLERGY}/analyze`,
+      jsonData,
+      {
+        params: { kakaoId, occurredDate }
+      }
+    );
+    
+  },
+
+  // 알레르기 분석 정보 삭제
+  deleteAllergyAnalysis(kakaoId, analysisId) {
+    return axios.delete(`${API_URL_ALLERGY}/${analysisId}`, {
+      params: {
+        kakaoId,
+      },
+    });
+  },
 
   // 약/영양제 정보 수정
   updateInventory(kakaoId, itemId, data) {
@@ -87,14 +119,37 @@ export default {
     return axios.get(`${API_URL_SYMPTOMS}/records/${kakaoId}`, { params: { date } });
   },
 
+  async subscribeToPush(userId, subscription) {
+    try {
+      const response = await axios.post(`/api/push/subscribe/${userId}`, subscription);
+      console.log('Push 구독 성공:', response.data);
+    } catch (error) {
+      console.error('Push 구독 실패:', error);
+      throw error;
+    }
+  },
+
+  getVapidPublicKey() {
+    return axios.get(`/api/push/vapidPublicKey`);
+  },
+  
+
+  // 기간별 알레르기 정보 조회
+  getSymptomRecordsByPeriod(kakaoId, startDate, endDate) {
+    return axios.get(`${API_URL_SYMPTOMS}/records/${kakaoId}/period`, {
+      params: { startDate, endDate },
+    });
+  },
+
   // 알레르기 정보 수정
   updateSymptomRecord(recordId, data) {
     return axios.put(`${API_URL_SYMPTOMS}/records/${recordId}`, data);
   },
 
+
   // 알레르기 정보 삭제
-  deleteSymptomRecord(recordId) {
-    return axios.delete(`${API_URL_SYMPTOMS}/records/${recordId}`);
+  deleteSymptomRecordById(kakaoId, recordId) {
+    return axios.delete(`${API_URL_SYMPTOMS}/records/${kakaoId}/${recordId}`);
   },
 
   // 로그아웃

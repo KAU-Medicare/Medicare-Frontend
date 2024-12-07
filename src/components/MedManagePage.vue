@@ -86,8 +86,7 @@
             left: modalPosition.left + 'px',
           }"
         >
-          <p @click="addSupplementByBarcode">바코드로 추가하기</p>
-          <p @click="addSupplementByName">이름으로 추가하기</p>
+          <p @click="addSupplementByName">이름으로<br>추가하기</p>
         </div>
       </div>
 
@@ -105,8 +104,8 @@
             left: modalPosition.left + 'px',
           }"
         >
-          <p @click="addPillByBarcode">바코드로 추가하기</p>
-          <p @click="addPillByName">이름으로 추가하기</p>
+          <p @click="addPillByBarcode">바코드로<br>추가하기</p>
+          <p @click="addPillByName">이름으로<br>추가하기</p>
         </div>
       </div>
     </div>
@@ -385,7 +384,7 @@ button:focus {
   padding: 10px;
   width: 100px;
   z-index: 1001; /* 모달이 다른 요소들 위에 표시되도록 설정 */
-  transform: translateY(-100%); /* 모달을 클릭한 위치 바로 위로 올림 */
+  transform: translate(-100%, -100%); /* X와 Y 방향으로 모두 이동 */
 }
 
 .modal-content p {

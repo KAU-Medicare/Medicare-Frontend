@@ -307,8 +307,6 @@ export default {
 };
 </script>
 
-
-
 <style scoped>
 .date-picker {
   margin-top: 20px;
@@ -328,10 +326,10 @@ export default {
 
 .date-inputs input[type="date"] {
   padding: 8px;
-  font-size: 1.2rem;
+  font-size: 1.5vh;
   border: 1px solid #ccc;
   border-radius: 5px;
-  width: 200px;
+  width: 35vw;
 }
 .outer-container {
   display: flex;

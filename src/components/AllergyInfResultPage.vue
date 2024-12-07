@@ -1,180 +1,353 @@
 <template>
   <div class="container">
     <!-- 카드 박스 -->
-    <div class="card"></div>
+    <div class="card-section">
+      <h2>알레르기 정보</h2>
+      <section class="section">
+        <AllergyCard
+          v-for="record in allergyRecords"
+          :key="record.id"
+          :log="record"
+          class="allergy-card"
+        />
+      </section>
+    </div>
 
     <!-- 이미지 박스 -->
     <div class="image-container">
-      <!-- 주황색 박스 -->
-      <div class="overlay-box">
-        <p class="overlay-text">알레르기원으로 다음이 가장 유력해요:</p>
-        <p class="overlay-text">
-          <!-- 동적으로 처리된 알레르기 원인 텍스트 출력 -->
+      <!-- 분석 결과 박스 -->
+      <div class="analysis-container">
+        <h3 class="analysis-title">알레르기원으로 다음이 가장 유력해요:</h3>
+        <p class="highlight-text">
           <span v-html="allergyCauseText"></span>
         </p>
       </div>
-      
-      <!-- 이미지 위 텍스트 영역 -->
-      <div class="image-text">
-        <p class="image-text-content">이미지 위의 텍스트를 작성하세요</p>
-      </div>
-      
-      <img src="@/assets/medDoctorBackground.png" alt="Doctor Background" class="image" />
+      <h4 class="reason-title">다음과 같은 이유가 있어요:</h4>
+      <ul class="reason-list">
+        <li v-for="(reason, index) in allergyData[0].cause" :key="index">
+          {{ reason }}
+        </li>
+      </ul>
     </div>
 
     <!-- 버튼 -->
-    <button class="action-button" @click="goToHome">다른 증상 보러가기</button>
+    <button class="action-button" @click="goToHome">다른 증상 알아보기</button>
   </div>
 </template>
 
 <script>
+import AllergyCard from "@/components/cards/AllergyCard.vue";
+import UserService from "@/services/UserService";
+
 export default {
+  components: {
+    AllergyCard,
+  },
   data() {
     return {
-      // 더미 데이터 (알레르기 관련)
+      occurredDate: this.$route.query.occurredDate || "",
+      allergyRecords: [], // 알레르기 데이터 배열
       allergyData: [
         {
-          medSuppList: ["타이레놀", "오메가3"],
-          cause: [
-            "타이레놀과 오메가3를 같이 먹었을 때 증상이 발현되었어요",
-            "타이레놀과 오메가3를 같이 먹었을 때 발생할 수 있는 발진, 호흡곤란이 발현했어요"
-          ]
-        }
-      ]
+          medSuppList: [],
+          cause: [],
+        },
+      ],
     };
   },
   computed: {
-    // 알레르기 원인 텍스트 처리
     allergyCauseText() {
       const medSuppList = this.allergyData[0].medSuppList;
       let result = "";
 
       if (medSuppList.length === 0) {
-        result = "타 식품과의 상호작용";
+        result = "원인을 조사하는 중이에요!";
       } else if (medSuppList.length === 1) {
-        result = `<span style="color: white;">${medSuppList[0]}</span>`;
+        result = `<span">${medSuppList[0]}</span>`;
       } else {
-        // 병용 텍스트 처리: 모든 약물에 대해 흰색으로 스타일링
-        result = medSuppList
-          .map(item => `<span style="color: white;">${item}</span>`)
-          .join('<span style="color: white;">, </span>') + " <span style='color: white;'>병용</span>";
+        result =
+          medSuppList
+            .map((item) => `<span">${item}</span>`)
       }
 
       return result;
-    }
+    },
   },
   methods: {
-    // 버튼 클릭 시 루트 경로로 이동
+    async fetchAllergyRecords() {
+      try {
+        const allergyResponse = await UserService.getSymptomRecordsByDate(
+          localStorage.getItem("userId"),
+          this.occurredDate
+        );
+
+        this.allergyRecords = allergyResponse.data.map((record) => ({
+          id: record.id,
+          date: record.occurredDate.join("-"), // YYYY-MM-DD 형식으로 변환
+          startTime: record.startTime.join(":") + ":00", // HH:mm:ss 형식으로 변환
+          endTime: record.endTime.join(":") + ":00", // HH:mm:ss 형식으로 변환
+          symptoms: record.symptomNames,
+          img: record.base64Image, // Base64 이미지 데이터
+        }));
+      } catch (error) {
+        console.error("알레르기 데이터를 가져오는 중 오류 발생:", error);
+        alert("알레르기 데이터를 가져오는 중 문제가 발생했습니다.");
+      }
+    },
+    async analyzeAllergy() {
+      try {
+        // 날짜 형식을 YYYY-MM-DD로 변환하는 유틸리티 함수
+        const formatDate = (date) => {
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, "0");
+          const day = String(date.getDate()).padStart(2, "0");
+          return `${year}-${month}-${day}`;
+        };
+
+        // 발생 날짜와 알레르기 증상 정보를 가져오기
+        const occurredDate = this.occurredDate; // URL 쿼리에서 받은 발생 날짜
+        const allergyInfo = this.allergyRecords
+          .map((record) => record.symptoms.join(", ")) // 각 record의 symptoms를 ','로 합침
+          .join(", "); // 여러 records의 symptoms를 ','로 합침
+
+        // 최근 5일간 날짜 계산
+        const startDate = new Date(
+          new Date(occurredDate).getTime() - 4 * 24 * 60 * 60 * 1000
+        );
+        const endDate = new Date(occurredDate);
+
+        const medicationHistoryPromises = [];
+
+        // 날짜 범위 동안 약물 복용 기록과 알레르기 데이터 요청
+        for (
+          let date = new Date(startDate);
+          date <= endDate;
+          date.setDate(date.getDate() + 1)
+        ) {
+          const formattedDate = formatDate(date);
+
+          const promise = (async () => {
+            const inventoryResponse = await UserService.getInventoryByDate(
+              localStorage.getItem("userId"),
+              formattedDate
+            );
+
+            // 복용 기록 필터링
+            const inventoryData = inventoryResponse.data.filter(
+              (item) => item.taken
+            );
+
+            if (inventoryData.length > 0) {
+              const medications = inventoryData.map((item) => item.itemName);
+
+              // 해당 날짜에 알레르기 발생 여부 확인
+              const allergyResponse = await UserService.getSymptomRecordsByDate(
+                localStorage.getItem("userId"),
+                formattedDate
+              );
+
+              const allergyOccurred = allergyResponse.data.length > 0;
+
+              return {
+                date: formattedDate.split("-").join("."), // 날짜 형식 변환
+                medications,
+                allergy: allergyOccurred,
+              };
+            }
+
+            return null; // 복용 기록이 없는 날은 제외
+          })();
+
+          medicationHistoryPromises.push(promise);
+        }
+
+        // 병렬로 모든 요청 처리
+        const medicationHistoryResults = await Promise.all(
+          medicationHistoryPromises
+        );
+
+        // null 값을 제거하여 최종 기록 생성
+        const medicationHistory = medicationHistoryResults.filter(
+          (item) => item !== null
+        );
+
+        // 생성된 JSON 데이터
+        const jsonData = {
+          allergy_info: allergyInfo, // 알레르기 카드에서 가져온 실제 증상 데이터
+          medication_history: medicationHistory, // 약물 복용 기록
+        };
+
+        console.log("생성된 JSON 데이터:", jsonData);
+
+        // 알레르기 분석 요청
+        const analysisResponse = await UserService.analyzeAllergy(
+          localStorage.getItem("userId"),
+          occurredDate,
+          jsonData
+        );
+
+        // 데이터에 결과 반영
+        this.allergyData[0].medSuppList = analysisResponse.data.result;
+        this.allergyData[0].cause = [
+          analysisResponse.data.cause.reason1[0],
+          analysisResponse.data.cause.reason2[0],
+          analysisResponse.data.cause.reason3[0],
+        ];
+      } catch (error) {
+        console.error("알레르기 분석 요청 중 오류 발생:", error);
+        alert("알레르기 분석 요청 중 오류가 발생했습니다.");
+      }
+    },
+
     goToHome() {
-      this.$router.push('/');  // Vue Router를 사용하여 '/' 경로로 이동
+      this.$router.push("/");
+    },
+  },
+  async mounted() {
+    if (this.occurredDate) {
+      await this.fetchAllergyRecords();
+      await this.analyzeAllergy();
+    } else {
+      alert("올바른 알레르기 날짜를 전달받지 못했습니다.");
     }
-  }
+  },
 };
 </script>
 
 <style scoped>
-/* 전체 페이지 크기 설정, 스크롤 가능하도록 overflow 설정 */
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  overflow-x: hidden; /* 가로 스크롤 방지 */
+.image-container {
+  width: 100%;
+  max-width: 600px; /* 가로 최대 너비 */
+  aspect-ratio: 3 / 4; /* 가로:세로 비율 설정 (3:4) */
+  background-image: url("@/assets/medDoctorBackground.png"); /* 배경 이미지 */
+  background-size: cover; /* 컨테이너를 채우도록 설정 */
+  background-repeat: no-repeat; /* 이미지 반복 방지 */
+  background-position: center bottom; /* 이미지 하단 정렬 */
+  border-radius: 15px; /* 모서리 둥글게 */
+  display: flex; /* 내부 콘텐츠 정렬을 위한 Flexbox */
+  flex-direction: column; /* 세로로 정렬 */
+  justify-content: flex-start; /* 상단 정렬 */
+  align-items: flex-start; /* 왼쪽 정렬 */
+  padding: 20px; /* 내부 패딩 추가 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 박스 그림자 */
+  margin-top: 20px; /* 상단 여백 */
+  margin-bottom: 20px; /* 하단 여백 */
 }
+
+
 
 .container {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-start; /* 상단에 배치 */
-  width: 100%;
-  min-height: 100vh; /* 화면 높이를 최소한으로 사용 */
-  padding: 20px; /* 여백 추가 */
-  box-sizing: border-box; /* 패딩이 포함되도록 */
-  flex-grow: 1; /* 남은 공간을 채우도록 설정 */
+  align-items: center; /* 가로 중앙 정렬 */
+  justify-content: flex-start; /* 세로 상단 정렬 */
+  padding: 2vh 5vw 11vh 5vw;
+  box-sizing: border-box;
 }
 
-.card {
+/* 카드 섹션 스타일 */
+.card-section {
   width: 100%;
-  max-width: 600px; /* 최대 가로 길이 설정 */
-  height: 150px; /* 카드의 높이 조정 */
-  background-color: lightgray;
+  max-width: 600px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
+  padding: 15px;
 }
 
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+h2 {
+  margin: 0 0 15px;
+  font-size: min(8vw, 40px);
+  color: #333;
+  text-align: center;
+}
+
+/* 분석 결과 섹션 */
+.analysis-container {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  width: 100%;
+  max-width: 600px;
+  background-color: #ffefdb;
+  border-radius: 10px;
+  padding: 20px 0;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.analysis-title {
+  font-size: min(4vw, 20px);
+  font-weight: bold;
+  color: #d35400;
+  margin-bottom: 10px;
+}
+
+.highlight-text {
+  font-size: min(4vw, 20px);
+  font-weight: bold;
+  color: #e65100;
+  margin: 10px 0;
+}
+
+.reason-title {
+  font-size: min(3.5vw, 20px);
+  font-weight: bold;
+  color: #555;
+  margin-top: 15px;
+}
+
+.reason-list {
+  list-style-type: decimal;
+  padding-left: 20px;
+  margin-top: 10px;
+}
+
+.reason-list li {
+  font-size: min(3vw, 16px);
+  color: #666;
+  margin-bottom: 5px;
+}
+
+/* 이미지 박스 */
 .image-container {
   width: 100%;
-  max-width: 600px; /* 카드와 동일한 최대 가로 길이 */
+  max-width: 600px;
   position: relative;
-  aspect-ratio: 3 / 4; /* 3:4 비율 */
-  overflow: hidden;
 }
 
-.overlay-box {
-  position: absolute;
-  top: 2%; /* 박스를 위에서 2% 아래로 내려줍니다 (더 위로 올림) */
-  left: 50%; /* 가로 가운데로 배치 */
-  transform: translateX(-50%); /* 정확히 가운데로 정렬 */
-  width: 95%; /* 이미지의 95%로 가로 길이 설정 (더 넓게) */
-  height: 30%; /* 세로 길이 줄이기 */
-  background-color: #e65100; /* 진한 주황색 */
-  display: flex;
-  flex-direction: column; /* 텍스트가 여러 줄로 나올 수 있도록 설정 */
-  align-items: flex-start; /* 왼쪽 정렬 */
-  justify-content: flex-start;
-  color: black;
-  font-size: 18px;
-  font-weight: bold;
-  padding: 10px;
-  box-sizing: border-box;
-  border-radius: 15px; /* 모서리 둥글게 */
-  z-index: 1; /* 이미지 위에 표시 */
-}
-
-.overlay-text {
-  text-align: left; /* 텍스트를 왼쪽으로 정렬 */
-  margin-left: 10px; /* 왼쪽 여백 추가 */
-  color: black;
-  margin-bottom: 5px; /* 줄 간격 추가 */
-}
-
-.image-text {
-  position: absolute;
-  top: 42%; /* 이미지 텍스트 배치 */
-  left: 5%; /* PC 화면에서는 5% */
-  transform: translate(0%, -50%); /* 수평으로 0% 이동, 수직으로 중앙 정렬 */
-  color: black;
-  font-size: 24px;
-  font-weight: bold;
-  text-align: left; /* 텍스트를 왼쪽으로 정렬 */
-  z-index: 2; /* 주황색 박스보다 위에 표시 */
-}
-
-/* 모바일 화면에서 텍스트 크기 줄이기 */
-@media (max-width: 600px) {
-  .image-text {
-    font-size: 16px; /* 텍스트 크기 줄이기 */
-    left: 5%; /* 모바일에서 5%로 이동 */
-  }
-}
-
-.image {
+.background-image {
   width: 100%;
-  height: 100%;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   object-fit: cover;
-  object-position: bottom; /* 아랫부분을 보존 */
 }
 
+/* 버튼 스타일 */
 .action-button {
-  margin-top: 40px; /* 버튼과 이미지 사이 간격 늘리기 */
   width: 100%;
-  max-width: 600px; /* 카드와 동일한 최대 가로 길이 */
+  max-width: 600px;
   padding: 15px;
-  background-color: orange;
-  border: none;
+  background-color: #ffa726;
   color: white;
-  font-size: 18px; /* 버튼 글씨 크기 키우기 */
+  font-size: min(3vw, 15px);
+  font-weight: bold;
+  text-align: center;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   cursor: pointer;
-  margin-bottom: 80px; /* 버튼 하단 여백 */
-  border-radius: 10px; /* 버튼 모서리 둥글게 */
+  transition: background-color 0.3s ease;
+}
+
+.action-button:hover {
+  background-color: #fb8c00;
 }
 </style>
