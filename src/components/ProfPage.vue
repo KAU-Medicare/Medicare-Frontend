@@ -125,7 +125,6 @@ export default {
   font-size: 1.8rem;
   font-weight: bold;
   color: #333;
-  position: absolute;
   top: 0px;
 }
 
