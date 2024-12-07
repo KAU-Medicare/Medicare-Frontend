@@ -664,11 +664,27 @@ input:checked + .slider:before {
 @media (max-width: 768px) {
   .outer-container {
     padding: 15px;
+    padding: 0 5vw 8vh 5vw;
+    width: 100vw;
   }
 
   .inner-container {
     padding: 15px;
   }
+
+  .time-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+  .ampm-select:hover {
+  background-color: #ffefdb;
+  border-color: #ff8947;
+}
 
   .input-group {
     margin-bottom: 10px;
@@ -688,14 +704,64 @@ input:checked + .slider:before {
     font-size: 1rem;
   }
 
+  .time-select {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
   .time-select select {
-    padding: 8px;
-    font-size: 1rem;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 10px 15px;
+    font-size: 1.2rem;
+    width: 80px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
   }
 
+  .time-select select:hover {
+    background-color: #ffefdb;
+    border-color: #ff8947;
+  }
   .register-btn {
     padding: 10px;
     font-size: 1.2rem;
   }
+
+  .ampm-select {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 10px 15px;
+  font-size: 1.2rem;
+  width: 100px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.dose-label {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.dose-input {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 10px 15px;
+  font-size: 1.2rem;
+  text-align: center;
+  width: 100px;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.dose-input:hover {
+  background-color: #ffefdb;
+  border-color: #ff8947;
+}
 }
 </style>
