@@ -12,7 +12,9 @@
     <!-- 알림 허용 버튼 -->
     <section class="section">
       <h2>Push 알림 설정</h2>
-      <button @click="subscribeToPush" class="action-button">알림 허용</button>
+      <button @click="subscribeToPushNotifications" class="push-button">
+        알림 허용
+      </button>
     </section>
 
     <button class="logout-btn" @click="logout">로그아웃</button>
@@ -21,6 +23,7 @@
 
 <script>
 import UserService from "@/services/UserService";
+import { urlBase64ToUint8Array } from "@/utils/conversion";
 
 export default {
   name: "UserInfoPage",
@@ -31,55 +34,6 @@ export default {
     };
   },
   methods: {
-    async subscribeToPush() {
-      try {
-        // VAPID 키를 서버에서 가져오기
-        const response = await UserService.getVapidPublicKey();
-        const vapidPublicKey = response.data; // 서버에서 받은 VAPID 키
-
-        // Service Worker 등록
-        const registration = await navigator.serviceWorker.register(
-          "/service-worker.js"
-        );
-        console.log("Service Worker 등록 성공:", registration);
-
-        // Push 구독
-        const subscription = await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: this.urlBase64ToUint8Array(vapidPublicKey),
-        });
-
-        console.log("Push Subscription:", subscription);
-
-        // 서버로 전송할 데이터 형식
-        const pushSubscriptionData = {
-          endpoint: subscription.endpoint,
-          keys: {
-            p256dh: subscription.keys.p256dh,
-            auth: subscription.keys.auth,
-          },
-        };
-
-        console.log("서버로 전송할 데이터:", pushSubscriptionData);
-
-        // 서버에 구독 정보 전송
-        await UserService.subscribeToPush(this.userId, pushSubscriptionData);
-        alert("Push 알림이 성공적으로 설정되었습니다!");
-      } catch (error) {
-        console.error("Push 알림 설정 중 오류 발생:", error);
-        alert("Push 알림 설정에 실패했습니다.");
-      }
-    },
-
-    // VAPID 키 변환 함수
-    urlBase64ToUint8Array(base64String) {
-      const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-      const base64 = (base64String + padding)
-        .replace(/-/g, "+")
-        .replace(/_/g, "/");
-      const rawData = window.atob(base64);
-      return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
-    },
     logout() {
       localStorage.removeItem("userId");
       this.$router.push({ name: "LoginPage" });
@@ -94,14 +48,65 @@ export default {
         console.error("회원 정보 조회 에러:", error);
       }
     },
+    async subscribeToPushNotifications() {
+      try {
+        // 브라우저 알림 권한 요청
+        const permission = await Notification.requestPermission();
+        if (permission !== "granted") {
+          throw new Error("알림 권한이 거부되었습니다.");
+        }
+
+        // VAPID 키 가져오기
+        const response = await fetch("/api/push/vapidPublicKey");
+        const vapidPublicKey = await response.text();
+
+        // Service Worker 등록
+        const registration = await navigator.serviceWorker.register(
+          "/service-worker.js"
+        );
+        if (!registration) {
+          throw new Error("서비스 워커 등록 실패");
+        }
+
+        // 기존 구독 제거
+        const existingSubscription =
+          await registration.pushManager.getSubscription();
+        if (existingSubscription) {
+          await existingSubscription.unsubscribe();
+        }
+
+        // 새 구독 생성
+        const subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+        });
+
+        console.log("Push Subscription:", subscription);
+
+        // 서버로 구독 정보 전송
+        await fetch("/api/push/subscribe", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(subscription),
+        });
+
+        alert("Push 알림이 성공적으로 설정되었습니다!");
+      } catch (error) {
+        console.error("Push 알림 구독 실패:", error);
+        alert("Push 알림 설정에 실패했습니다.");
+      }
+    },
   },
 
   mounted() {
-    this.userId = Number(localStorage.getItem("userId")); // 로컬스토리지에 저장된 Id 받아오기
+    this.userId = Number(localStorage.getItem("userId"));
     this.getUserInfo();
   },
 };
 </script>
+
 
 <style scoped>
 /* Layout */
@@ -153,6 +158,33 @@ export default {
   color: #ff8947;
 }
 
+/* Push Button */
+.push-button {
+  width: 100%;
+  max-width: 600px;
+  padding: 15px 20px;
+  background-color: #4caf50;
+  color: white;
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-align: center;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.push-button:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
+}
+
+.push-button:active {
+  background-color: #3e8e41;
+}
+
+/* Logout Button */
 .logout-btn {
   background-color: #ff8947;
   color: black;
