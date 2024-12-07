@@ -1,9 +1,6 @@
 <template>
   <div class="container">
     <h1 class="title">내 정보</h1>
-    <div class="logo">
-      <img src="@/assets/medicareLogo.png" alt="medicare logo" class="logo" />
-    </div>
 
     <div class="welcome-msg" v-if="searchedUser.nickname">
       <span class="name">{{ searchedUser.nickname }}</span>
