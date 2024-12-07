@@ -340,7 +340,7 @@ export default {
   width: 100vw;
   background-color: white;
   box-sizing: border-box;
-  padding: 0;
+  padding: 0 0 11vh 0;
   margin: 0;
 }
 
