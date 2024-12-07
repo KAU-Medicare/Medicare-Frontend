@@ -132,7 +132,7 @@ export default {
 
 .date-picker input[type="date"] {
   padding: 10px;
-  font-size: min(5vw, 20px);
+  font-size: min(4vw, 15px);
   border: 1px solid #ccc;
   border-radius: 10px;
   width: min(34vw, 260px);
@@ -161,7 +161,7 @@ export default {
   text-align: center;
   color: #888;
   font-size: min(5vw, 20px);
-  margin-top: 300px;
+  margin-top: 25vh;
 }
 
 .logs-list {
