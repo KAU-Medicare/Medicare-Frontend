@@ -6,6 +6,7 @@
       <span class="name">{{ searchedUser.nickname }}</span>
       <span>님, 환영합니다!</span>
     </div>
+
     <!-- 알림 허용 버튼 -->
     <section class="section">
       <h2>Push 알림 설정</h2>
@@ -14,7 +15,26 @@
       </button>
     </section>
 
+    <!-- 주의사항 버튼 -->
+    <section class="section">
+      <button @click="toggleAlert" class="alert-button">주의사항</button>
+    </section>
+
     <button class="logout-btn" @click="logout">로그아웃</button>
+
+    <!-- 주의사항 다이얼로그 -->
+    <div v-if="showAlert" class="alert-dialog">
+      <div class="alert-content">
+        <h2 class="alert-title">주의!</h2>
+        <p class="alert-message">
+          해당 어플에서 사용되는 챗봇과 알레르기 추론 기능은 AI를 기반으로 하고
+          있으며, 출력된 답변은 실제 정보와 다를 수 있습니다. 보조 도구로써
+          활용하시길 권장드리며, 알레르기 추론 기능과 같은 경우 의사의 결정에
+          따라주시길 바랍니다.
+        </p>
+        <button @click="toggleAlert" class="close-alert-btn">확인</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -28,6 +48,7 @@ export default {
     return {
       userId: 0, // 사용자의 아이디가 담길 변수
       searchedUser: {}, // id로 검색된 유저 객체
+      showAlert: false, // 주의사항 다이얼로그 표시 여부
     };
   },
   methods: {
@@ -47,41 +68,31 @@ export default {
     },
     async subscribeToPushNotifications() {
       try {
-        // 브라우저 알림 권한 요청
         const permission = await Notification.requestPermission();
         if (permission !== "granted") {
           throw new Error("알림 권한이 거부되었습니다.");
         }
-
-        // VAPID 키 가져오기
         const response = await fetch("/api/push/vapidPublicKey");
         const vapidPublicKey = await response.text();
 
-        // Service Worker 등록
         const registration = await navigator.serviceWorker.register(
           "/service-worker.js"
         );
-        console.log("Service Worker 등록 성공:", registration);
         if (!registration) {
           throw new Error("서비스 워커 등록 실패");
         }
 
-        // 기존 구독 제거
         const existingSubscription =
           await registration.pushManager.getSubscription();
         if (existingSubscription) {
           await existingSubscription.unsubscribe();
         }
 
-        // 새 구독 생성
         const subscription = await registration.pushManager.subscribe({
           userVisibleOnly: true,
           applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
         });
 
-        console.log("Push Subscription:", subscription);
-
-        // 서버로 구독 정보 전송
         await fetch(`/api/push/subscribe/${this.userId}`, {
           method: "POST",
           headers: {
@@ -96,15 +107,16 @@ export default {
         alert("Push 알림 설정에 실패했습니다.");
       }
     },
+    toggleAlert() {
+      this.showAlert = !this.showAlert;
+    },
   },
-
   mounted() {
     this.userId = Number(localStorage.getItem("userId"));
     this.getUserInfo();
   },
 };
 </script>
-
 
 <style scoped>
 /* Layout */
@@ -125,17 +137,8 @@ export default {
   font-size: 1.8rem;
   font-weight: bold;
   color: #333;
-  top: 0px;
 }
 
-.logo {
-  text-align: center;
-  margin-top: 50px;
-  margin-bottom: 25px;
-  width: 200px;
-}
-
-/* Welcome Message */
 .welcome-msg {
   height: 8vh;
   display: flex;
@@ -164,7 +167,6 @@ export default {
   color: white;
   font-size: 1.8rem;
   font-weight: bold;
-  text-align: center;
   border: none;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
@@ -183,10 +185,10 @@ export default {
 
 /* Logout Button */
 .logout-btn {
+  position: fixed;
   background-color: #ff8947;
   color: black;
   border: none;
-  padding: 0 5vw;
   border-radius: 10px;
   padding: 15px 10px;
   font-size: 1.8rem;
@@ -195,11 +197,85 @@ export default {
   cursor: pointer;
   transition: background-color 0.3s ease;
   text-align: center;
-  position: absolute;
   bottom: 12vh;
 }
 
 .logout-btn:hover {
   background-color: #ff6b2f;
+}
+
+/* Alert Button */
+.alert-button {
+  background-color: #ffa726;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 15px 20px;
+  font-size: 1.8rem;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  width: 100%;
+  max-width: 600px;
+  margin-top: 20px;
+}
+
+.alert-button:hover {
+  background-color: #fb8c00;
+  transform: scale(1.05);
+}
+
+/* Alert Dialog */
+.alert-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.alert-content {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  width: 90%;
+  max-width: 500px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.alert-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #ff5252;
+}
+
+.alert-message {
+  font-size: 1.4rem;
+  color: #333;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.close-alert-btn {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.close-alert-btn:hover {
+  background-color: #45a049;
 }
 </style>
