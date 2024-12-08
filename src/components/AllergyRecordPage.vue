@@ -227,15 +227,6 @@ export default {
         ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
       }
       try {
-        // 서버로 전송할 데이터 생성
-        const jsonData = {
-          image: this.encodedImage, // Base64로 인코딩된 이미지
-          data: {
-            occurrenceTime: `${this.occurredDate}`, // 발생 시간 (YYYY-MM-DD HH:mm:ss 형식)
-            symptoms: this.selectedSymptoms.map((symptom) => symptom), // 선택된 증상 이름 배열
-          },
-        };
-
         const data = {
           kakaoId: userId, // localStorage에서 가져온 사용자 ID
           symptomIds: this.selectedSymptoms.map(
@@ -246,16 +237,6 @@ export default {
           endTime: this.timeRange.endTime, // HH:mm:ss 형식
           base64Image: this.encodedImage,
         };
-        // 서버에 데이터 전송
-        console.log("전송 데이터:", jsonData);
-        UserService.registerAllergy(jsonData.image, jsonData.data.occurrenceTime, jsonData.data.symptoms)
-          .then((response) => {
-            console.log("Allergy registered successfully:", response);
-          })
-          .catch((error) => {
-            console.error("Failed to register allergy:", error);
-          });
-
 
         // 서버에 데이터 전송
         console.log("전송 데이터:", data);

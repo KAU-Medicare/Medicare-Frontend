@@ -13,23 +13,22 @@ export default {
   async registerAllergy(encodedImage, occurrenceTime, symptoms) {
     const url = "/api/allergy/register"; // API 엔드포인트
   
-    // FormData 객체 생성
-    const formData = new FormData();
-    formData.append("image", encodedImage); // Base64 이미지 추가
-    formData.append(
-      "data",
-      JSON.stringify({
+    // JSON 데이터 생성
+    const requestData = {
+      image: encodedImage, // Base64 이미지
+      data: {
         occurrenceTime: occurrenceTime, // 발생 시간
         symptoms: symptoms, // 증상 배열
-      })
-    );
-  
+      },
+    };
+    console.log("requestData:", requestData);
     try {
-      const response = await axios.post(url, formData, {
+      const response = await axios.post(url, requestData, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
         },
       });
+      
       console.log("Response:", response.data);
       return response.data; // 서버 응답 데이터 반환
     } catch (error) {
@@ -37,6 +36,7 @@ export default {
       throw error;
     }
   },
+  
   // 카카오 로그인
   kakaoLogin(code) {
     return axios.post(`${API_URL_USERS}/kakao/${code}`);
